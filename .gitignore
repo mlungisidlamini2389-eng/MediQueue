@@ -22,3 +22,10 @@ uploads/*
 .DS_Store
 Thumbs.db
 Microsoft/
+
+# Portable development tools and local verification artifacts
+node-v*-win-x64/
+node-runtime.tmp.zip
+node-shasums.tmp
+.tools/
+test-results/
