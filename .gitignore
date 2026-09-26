@@ -1,0 +1,24 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+dist/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local databases and uploaded files
+*.db
+*.sqlite3
+uploads/*
+!uploads/.gitkeep
+
+# Operating system and shell caches
+.DS_Store
+Thumbs.db
+Microsoft/
