@@ -25,6 +25,15 @@ export async function signInWithPassword(email, password) {
   return data.user;
 }
 
+export async function signInAsAdmin(password) {
+  const data = await requestJson("/auth/admin-login", {
+    method: "POST",
+    body: JSON.stringify({ password }),
+  });
+  if (!data.user?.name) throw new Error("The sign-in response was incomplete.");
+  return data.user;
+}
+
 export async function registerUser(name, email, password) {
   const data = await requestJson("/auth/register", {
     method: "POST",

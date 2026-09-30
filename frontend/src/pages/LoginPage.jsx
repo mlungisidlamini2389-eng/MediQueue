@@ -8,14 +8,14 @@ import {
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
 export default function LoginPage({ role = "patient" }) {
-  const { signInWithPassword, startDemo } = useAuth();
+  const { signInWithPassword, signInAsAdmin, startDemo } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   async function handleSubmit(event) {
     event.preventDefault();
-    if (!email.trim() || !email.includes("@")) {
+    if (role === "patient" && (!email.trim() || !email.includes("@"))) {
       setError("Enter a valid email address.");
       return;
     }
@@ -26,7 +26,8 @@ export default function LoginPage({ role = "patient" }) {
     setBusy(true);
     setError("");
     try {
-      await signInWithPassword(email, password);
+      if (role === "admin") await signInAsAdmin(password);
+      else await signInWithPassword(email, password);
       window.location.hash = role === "admin" ? "/admin" : "/dashboard";
     } catch (loginError) {
       setError(loginError.message);
@@ -84,18 +85,20 @@ export default function LoginPage({ role = "patient" }) {
           </p>
         )}
         <form className="login-fields" onSubmit={handleSubmit}>
-          <label className="register-field">
-            <span>Email address</span>
-            <input
-              type="email"
-              name="email"
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="you@example.com"
-              required
-            />
-          </label>
+          {role === "patient" && (
+            <label className="register-field">
+              <span>Email address</span>
+              <input
+                type="email"
+                name="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="you@example.com"
+                required
+              />
+            </label>
+          )}
           <label className="register-field">
             <span>Password</span>
             <input

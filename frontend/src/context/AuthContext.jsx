@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import {
   registerUser as registerUserRequest,
   getCurrentUser,
+  signInAsAdmin as signInAsAdminRequest,
   signInWithPassword as signInWithPasswordRequest,
   signOut,
 } from "../services/api";
@@ -16,6 +17,10 @@ export function AuthProvider({ children }) {
   }, []);
   async function signInWithPassword(email, password) {
     setUser(await signInWithPasswordRequest(email, password));
+    setDemo(false);
+  }
+  async function signInAsAdmin(password) {
+    setUser(await signInAsAdminRequest(password));
     setDemo(false);
   }
   async function registerUser({ name, email, password }) {
@@ -39,6 +44,7 @@ export function AuthProvider({ children }) {
         user,
         demo,
         signInWithPassword,
+        signInAsAdmin,
         registerUser,
         startDemo,
         leaveSession,

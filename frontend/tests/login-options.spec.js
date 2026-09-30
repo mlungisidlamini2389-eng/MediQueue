@@ -22,10 +22,10 @@ test("home login choices work on desktop and mobile", async ({ page }) => {
 
 test("admin login redirects to the guarded admin workspace", async ({ page }) => {
   await page.route("**/auth/me", route => route.fulfill({ status: 401, json: { detail: "Not signed in" } }));
-  await page.route("**/auth/login", route => route.fulfill({ json: { user: { id: "sample", name: "Patient", email: "patient@example.com", role: "patient" } } }));
+  await page.route("**/auth/admin-login", route => route.fulfill({ json: { user: { id: "sample", name: "Patient", email: "patient@example.com", role: "patient" } } }));
   await page.goto("/#/login/admin");
-  await page.getByLabel("Email address").fill("patient@example.com");
-  await page.getByLabel("Password", { exact: true }).fill("samplepassword");
+  await expect(page.getByLabel("Email address")).toHaveCount(0);
+  await page.getByLabel("Password", { exact: true }).fill("Admin@");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/#\/admin$/);
   await expect(page.getByRole("heading", { name: "Administrator access required." })).toBeVisible();
