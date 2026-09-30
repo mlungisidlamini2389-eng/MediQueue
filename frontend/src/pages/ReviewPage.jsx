@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ArrowRight, ClipboardCheck } from "lucide-react";
 import ProgressBar from "../components/ProgressBar";
 import Button from "../components/Button";
-export default function ReviewPage({ draft, onSubmit }) {
+export default function ReviewPage({ draft, onSubmit, demo }) {
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -63,17 +63,27 @@ export default function ReviewPage({ draft, onSubmit }) {
             checked={confirmed}
             onChange={(e) => setConfirmed(e.target.checked)}
           />{" "}
-          I’ve checked these details and understand this is a demo, not a real
-          booking.
+          {demo
+            ? "I’ve checked these details and understand this is a demo, not a real booking."
+            : "I’ve checked these details and agree to save them for administrator review in this prototype."}
         </label>
       </section>
-      {error && <p className="error" role="alert">{error}</p>}
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
       <div className="flow-actions">
         <Button variant="outline" href="#/upload">
           Back
         </Button>
         <Button disabled={!confirmed || busy} onClick={submit}>
-          {busy ? "Saving..." : "Preview appointment"} <ArrowRight size={16} />
+          {busy
+            ? "Saving..."
+            : demo
+              ? "Preview appointment"
+              : "Submit pre-consultation"}{" "}
+          <ArrowRight size={16} />
         </Button>
       </div>
     </main>

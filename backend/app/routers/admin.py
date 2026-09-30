@@ -1,6 +1,5 @@
 import json
 import uuid
-from datetime import datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -10,6 +9,7 @@ from app.database import get_connection
 from app.routers.auth import require_admin
 from app.schemas.admin import AppointmentOffersCreate
 from app.schemas.user import UserResponse
+from app.time_utils import parse_timestamp, scheduling_resource, utc_now, utc_timestamp
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -59,18 +59,18 @@ def create_offers(
 	admin: UserResponse = Depends(require_admin),
 ):
 	starts = []
+	resources = []
 	for offer in payload.offers:
 		try:
-			start = datetime.fromisoformat(offer.starts_at)
-		except ValueError:
-			raise HTTPException(status_code=422, detail="Appointment dates must use ISO date/time format.")
-		if start.tzinfo is not None:
-			start = start.astimezone().replace(tzinfo=None)
-		if start <= datetime.now():
+			start = parse_timestamp(offer.starts_at)
+		except ValueError as error:
+			raise HTTPException(status_code=422, detail=str(error)) from error
+		if start <= utc_now():
 			raise HTTPException(status_code=422, detail="Appointment options must be in the future.")
 		starts.append(start)
-	if len(set(starts)) != len(starts):
-		raise HTTPException(status_code=422, detail="Appointment options must have different times.")
+		resources.append(scheduling_resource(offer.department, offer.location))
+	if len(set(zip(starts, resources))) != len(starts):
+		raise HTTPException(status_code=422, detail="Appointment options must have different resource and time combinations.")
 	with get_connection() as connection:
 		consultation = connection.execute(
 			"SELECT id FROM consultations WHERE id = ?", (consultation_id,)
@@ -82,25 +82,25 @@ def create_offers(
 		).fetchone()
 		if booked:
 			raise HTTPException(status_code=409, detail="This consultation already has a booked appointment.")
-		booked_times = {
-			row["starts_at"]
-			for row in connection.execute("SELECT starts_at FROM appointments").fetchall()
-		}
-		if any(start.isoformat(timespec="minutes") in booked_times for start in starts):
-			raise HTTPException(status_code=409, detail="One or more offered times are already booked.")
+		for start, resource_key in zip(starts, resources):
+			if connection.execute(
+				"SELECT id FROM appointments WHERE resource_key = ? AND starts_at = ?",
+				(resource_key, utc_timestamp(start)),
+			).fetchone():
+				raise HTTPException(status_code=409, detail="One or more offered resources are already booked at that time.")
 		connection.execute(
 			"DELETE FROM appointment_offers WHERE consultation_id = ?", (consultation_id,)
 		)
 		offer_ids = []
-		for offer, start in zip(payload.offers, starts):
+		for offer, start, resource_key in zip(payload.offers, starts, resources):
 			offer_id = str(uuid.uuid4())
 			offer_ids.append(offer_id)
 			connection.execute(
 				"""
-				INSERT INTO appointment_offers (id, consultation_id, starts_at, department, location)
-				VALUES (?, ?, ?, ?, ?)
+				INSERT INTO appointment_offers (id, consultation_id, starts_at, department, location, resource_key)
+				VALUES (?, ?, ?, ?, ?, ?)
 				""",
-				(offer_id, consultation_id, start.isoformat(timespec="minutes"), offer.department, offer.location),
+				(offer_id, consultation_id, utc_timestamp(start), offer.department, offer.location, resource_key),
 			)
 	return {"consultation_id": consultation_id, "offers": offer_ids}
 

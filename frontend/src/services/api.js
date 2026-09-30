@@ -30,7 +30,8 @@ export async function registerUser(name, email, password) {
     method: "POST",
     body: JSON.stringify({ name, email, password }),
   });
-  if (!data.user?.name) throw new Error("The registration response was incomplete.");
+  if (!data.user?.name)
+    throw new Error("The registration response was incomplete.");
   return data.user;
 }
 
@@ -48,6 +49,7 @@ export async function createConsultation(draft) {
   return requestJson("/consultations", {
     method: "POST",
     body: JSON.stringify({
+      submission_id: draft.submissionId,
       symptoms: draft.symptoms,
       duration: draft.duration,
       impact: draft.impact,
@@ -61,12 +63,15 @@ export async function createConsultation(draft) {
 export async function uploadConsultationImage(consultationId, file) {
   const formData = new FormData();
   formData.append("image", file);
-  const response = await fetch(`${baseUrl}/consultations/${consultationId}/images`, {
-    method: "POST",
-    credentials: "include",
-    body: formData,
-    signal: AbortSignal.timeout(15000),
-  });
+  const response = await fetch(
+    `${baseUrl}/consultations/${consultationId}/images`,
+    {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+      signal: AbortSignal.timeout(15000),
+    },
+  );
   if (!response.ok) {
     const data = await response.json().catch(() => null);
     throw new Error(data?.detail || "The image could not be uploaded.");
@@ -111,14 +116,4 @@ export async function offerAppointmentDates(consultationId, offers) {
     method: "POST",
     body: JSON.stringify({ offers }),
   });
-}
-
-// The server must validate the Google ID token and issue an HttpOnly session cookie.
-export async function signInWithGoogle(credential) {
-  const data = await requestJson("/auth/google", {
-    method: "POST",
-    body: JSON.stringify({ credential }),
-  });
-  if (!data.user?.name) throw new Error("The sign-in response was incomplete.");
-  return data.user;
 }

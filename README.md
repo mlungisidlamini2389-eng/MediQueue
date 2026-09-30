@@ -1,85 +1,80 @@
 # MediQueue
 
-A React + Vite frontend for a smart hospital queue and pre-consultation service.
+A React/Vite and FastAPI prototype for patient pre-consultation and administrator-offered appointment booking.
 
-## Run the frontend
+## Run locally
 
-Install Node.js 22 LTS or later, then run:
+Install Node.js 22 LTS or later and Python 3.11 or later. Run the backend and frontend in separate PowerShell terminals:
 
-```sh
+```powershell
+cd backend
+python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements-dev.txt
+.venv\Scripts\python -m uvicorn main:app --reload
+```
+
+```powershell
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
-$env:Path = "$PWD\node-v22.23.3-win-x64;$env:Path"
-cd frontend
-npm.cmd run dev
-```
 
-## MVP features
+## Current behavior
 
-- Responsive landing page inspired by the supplied MediQueue reference.
-- Database-backed patient sign-in and registration, plus optional Google sign-in when configured.
-- Separate patient demo for exploring the flow without an account.
-- Patient dashboard, symptom questionnaire, image upload, review, and admin-offered appointment selection.
-- Keyboard-accessible forms, validation, mobile navigation and reduced-motion support.
-- Role-protected admin review of submitted prototype data and appointment options.
+- Database-backed patient registration, password sign-in, and seven-day cookie sessions.
+- Separate in-memory patient demo that needs no account.
+- Persistent pre-consultation submission with retry-safe IDs.
+- Optional verified JPG, PNG, and WebP uploads, limited to three per consultation.
+- Administrator review and appointment offers.
+- Patient selection and persistent confirmation of one offered appointment.
+- Keyboard-accessible forms, validation, mobile navigation, and reduced-motion support.
 
-Use fictional information. Demo answers and image files stay in React memory and are never uploaded. Signed-in consultation data and uploaded attachments are stored by the local backend for review. No AI inference or medical triage is performed.
+Use fictional information. Demo answers and images stay in React memory. Signed-in consultation data, verified attachments, offers, and confirmed appointments are stored by the local backend. No AI inference, medical triage, live queueing, clinician workflow, or external hospital scheduling is implemented.
 
-## Prototype accounts
+## Create the first admin
 
-Patient accounts are stored in the local SQLite database. Patients can submit
-consultations, and an administrator can review them and offer appointment dates
-for the patient to choose.
-
-### Create the first admin
-
-Set these environment variables in the same PowerShell terminal before starting
-the backend. Use your own email and a strong private password:
+Set these values in the same terminal before starting the backend:
 
 ```powershell
 $env:MEDIQUEUE_ADMIN_EMAIL = "admin@example.com"
 $env:MEDIQUEUE_ADMIN_PASSWORD = "choose-a-strong-private-password"
 $env:MEDIQUEUE_ADMIN_NAME = "MediQueue Admin"
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
 ```
 
-On startup, the backend creates or promotes that account to the admin role and
-sets its password to `MEDIQUEUE_ADMIN_PASSWORD`. Sign in through the normal
-login page with those credentials, then open `#/admin`. Do not expose these
-environment values in frontend configuration or commit them to source control.
+Startup creates or promotes that account and resets its password to the configured value. Sign in through the normal admin login. Keep these values out of frontend configuration and source control.
 
-## Google sign-in
+## Configuration and persistence
 
-Create `frontend/.env.local` with:
+The frontend defaults to `http://127.0.0.1:8000`. Override it in `frontend/.env.local` when needed:
 
 ```dotenv
 VITE_API_URL=http://127.0.0.1:8000
-VITE_GOOGLE_CLIENT_ID=your-google-web-client-id
 ```
 
-Configure the Google OAuth web client with `http://localhost:5173` as an authorised JavaScript origin, and restart Vite. Without a client ID the Google button is disabled; local prototype sign-in and registration remain available.
+Google sign-in is hidden because the backend does not implement verified Google credentials. Local registration and password sign-in remain available.
 
-The frontend uses the official [Google Identity Services button](https://developers.google.com/identity/gsi/web/reference/js-reference). It sends the returned credential to `POST /auth/google`. This endpoint is not implemented yet. The future backend must verify the token's signature, issuer, audience and expiry, upsert the user in PostgreSQL and return `{ "user": { "id": "...", "name": "...", "email": "..." } }` with a secure HttpOnly session cookie. Never trust client-decoded Google claims for authentication or authorisation.
+FastAPI uses SQLite. The schema and safe additive updates live in `backend/app/database.py`; the project does not use separate SQL schema or seed files. Uploaded files use generated names under `uploads/`; metadata lives in SQLite.
 
-Sessions restore through `/auth/me`, and “Leave session” revokes the backend session. Production still needs secure-cookie deployment, CSRF controls, and a managed database.
+Appointment inputs require an explicit timezone. The backend normalizes and stores UTC ISO-8601 values ending in `Z`; browsers render them in the viewer's local timezone. Scheduling conflicts use department plus location, the smallest scheduling resource represented by the current model.
 
-## Backend and database
+This remains a local prototype. Production requires managed persistence and file storage, HTTPS secure cookies, CSRF protection, verified staff identity, audit trails, retention/deletion controls, isolated image processing, and integration with a real scheduling system.
 
-FastAPI with SQLite is currently used for local development. The browser accesses data through FastAPI; it never connects directly to the database. Admin credentials are configured only in the backend environment. Variables prefixed with `VITE_` are public browser configuration.
+## Validation
 
-Next work: production database migrations, verified Google authentication, clinician roles and review workflow, and integration with a real appointment availability source.
+Run the backend suite:
 
-## Frontend checks
+```powershell
+cd backend
+.venv\Scripts\python -m pytest -q
+```
 
-```sh
+Run the frontend build and Playwright suite:
+
+```powershell
 cd frontend
 npm run build
 npx playwright install chromium
 npm test
 ```
 
-If Microsoft Edge is already installed, set `PLAYWRIGHT_CHANNEL=msedge` instead of downloading Chromium. Tests cover the demo journey, required symptom selection, attachment removal, review confirmation, mobile navigation and layout overflow. Run tests without a configured Google client ID to exercise the initial setup state.
+The Playwright configuration starts both FastAPI and the built frontend. It covers the authenticated patient/admin booking flow, persistent confirmation, access control, the demo journey, form validation, mobile navigation, and layout overflow. If Microsoft Edge is already installed, set `PLAYWRIGHT_CHANNEL=msedge` instead of downloading Chromium.

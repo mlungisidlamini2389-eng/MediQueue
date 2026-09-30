@@ -1,9 +1,25 @@
 import { CalendarDays, Clock3, MapPin, Building2, Check } from "lucide-react";
-export default function AppointmentCard({ compact = false, appointment }) {
+export default function AppointmentCard({
+  compact = false,
+  appointment,
+  demo = false,
+}) {
+  if (!appointment && !demo) return null;
   const details = appointment
     ? [
-        [CalendarDays, "Date", new Date(appointment.starts_at).toLocaleDateString()],
-        [Clock3, "Time", new Date(appointment.starts_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })],
+        [
+          CalendarDays,
+          "Date",
+          new Date(appointment.starts_at).toLocaleDateString(),
+        ],
+        [
+          Clock3,
+          "Time",
+          new Date(appointment.starts_at).toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+          }),
+        ],
         [Building2, "Department", appointment.department],
         [MapPin, "Location", appointment.location],
       ]
@@ -20,12 +36,18 @@ export default function AppointmentCard({ compact = false, appointment }) {
           <Check size={compact ? 19 : 26} />
         </span>
         <strong>
-          {appointment ? "Your appointment is confirmed" : compact ? "Your visit, planned." : "Your sample appointment"}
+          {appointment
+            ? "Your appointment is confirmed"
+            : compact
+              ? "Your visit, planned."
+              : "Your sample appointment"}
         </strong>
         <span className="muted">
           {compact
             ? "A little less waiting."
-            : appointment ? "Your care team has your pre-consultation." : "Demo only · no appointment has been booked"}
+            : appointment
+              ? "Your care team has your pre-consultation."
+              : "Demo only · no appointment has been booked"}
         </span>
       </div>
       <div className="appointment-details">

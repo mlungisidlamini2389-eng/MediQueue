@@ -17,6 +17,13 @@ def get_connection():
 	return connection
 
 
+def _add_column(connection, table: str, definition: str):
+	column = definition.split()[0]
+	columns = {row["name"] for row in connection.execute(f"PRAGMA table_info({table})")}
+	if column not in columns:
+		connection.execute(f"ALTER TABLE {table} ADD COLUMN {definition}")
+
+
 def initialize_database():
 	with get_connection() as connection:
 		connection.executescript(
@@ -38,6 +45,7 @@ def initialize_database():
 			CREATE TABLE IF NOT EXISTS consultations (
 				id TEXT PRIMARY KEY,
 				patient_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+				submission_id TEXT,
 				symptoms TEXT NOT NULL,
 				duration TEXT NOT NULL,
 				impact TEXT NOT NULL,
@@ -52,6 +60,7 @@ def initialize_database():
 				filename TEXT NOT NULL,
 				content_type TEXT NOT NULL,
 				path TEXT NOT NULL,
+				content_sha256 TEXT,
 				created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 			);
 			CREATE INDEX IF NOT EXISTS consultations_patient_id_idx ON consultations(patient_id);
@@ -64,6 +73,7 @@ def initialize_database():
 				starts_at TEXT NOT NULL,
 				department TEXT NOT NULL,
 				location TEXT NOT NULL,
+				resource_key TEXT NOT NULL,
 				status TEXT NOT NULL DEFAULT 'confirmed',
 				created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 			);
@@ -74,17 +84,41 @@ def initialize_database():
 				starts_at TEXT NOT NULL,
 				department TEXT NOT NULL,
 				location TEXT NOT NULL,
+				resource_key TEXT NOT NULL,
 				status TEXT NOT NULL DEFAULT 'offered',
 				created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 			);
 			CREATE INDEX IF NOT EXISTS appointment_offers_consultation_idx ON appointment_offers(consultation_id);
 			"""
 		)
-		user_columns = {
-			row["name"] for row in connection.execute("PRAGMA table_info(users)")
-		}
-		if "role" not in user_columns:
-			connection.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'patient'")
+		_add_column(connection, "users", "role TEXT NOT NULL DEFAULT 'patient'")
+		_add_column(connection, "consultations", "submission_id TEXT")
+		_add_column(connection, "consultation_images", "content_sha256 TEXT")
+		_add_column(connection, "appointments", "resource_key TEXT NOT NULL DEFAULT ''")
+		_add_column(connection, "appointment_offers", "resource_key TEXT NOT NULL DEFAULT ''")
+		connection.execute(
+			"UPDATE appointments SET resource_key = lower(trim(department)) || '|' || lower(trim(location)) WHERE resource_key = ''"
+		)
+		connection.execute(
+			"UPDATE appointment_offers SET resource_key = lower(trim(department)) || '|' || lower(trim(location)) WHERE resource_key = ''"
+		)
+		for table in ("appointments", "appointment_offers"):
+			connection.execute(
+				f"UPDATE {table} SET starts_at = starts_at || 'Z' "
+				"WHERE starts_at NOT LIKE '%Z' AND starts_at NOT GLOB '*[+-][0-9][0-9]:[0-9][0-9]'"
+			)
+		connection.execute(
+			"CREATE UNIQUE INDEX IF NOT EXISTS consultations_submission_idx "
+			"ON consultations(patient_id, submission_id) WHERE submission_id IS NOT NULL"
+		)
+		connection.execute(
+			"CREATE UNIQUE INDEX IF NOT EXISTS consultation_images_hash_idx "
+			"ON consultation_images(consultation_id, content_sha256) WHERE content_sha256 IS NOT NULL"
+		)
+		connection.execute(
+			"CREATE UNIQUE INDEX IF NOT EXISTS appointments_resource_time_idx "
+			"ON appointments(resource_key, starts_at)"
+		)
 
 	admin_email = os.getenv("MEDIQUEUE_ADMIN_EMAIL", "").strip().lower()
 	admin_password = os.getenv("MEDIQUEUE_ADMIN_PASSWORD", "")

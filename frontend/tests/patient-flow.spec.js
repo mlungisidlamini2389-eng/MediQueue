@@ -1,12 +1,12 @@
 import { test, expect } from "@playwright/test";
 
-test("landing, Google setup state and complete patient demo", async ({
-  page,
-}) => {
+test("landing and complete patient demo", async ({ page }) => {
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  await expect(page.getByRole("link", { name: "Log in as Admin" })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Log in as Admin" }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: /Less time in line/ }),
   ).toBeVisible();
@@ -19,7 +19,7 @@ test("landing, Google setup state and complete patient demo", async ({
     .click();
   await expect(
     page.getByRole("button", { name: "Continue with Google" }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   await page.getByRole("button", { name: /Explore the patient demo/ }).click();
   await page
     .getByRole("link", { name: "Start pre-consultation", exact: true })
@@ -39,16 +39,14 @@ test("landing, Google setup state and complete patient demo", async ({
   await page
     .getByLabel("Additional symptoms or concerns")
     .fill("Sample concern for the demo.");
-  await page
-    .getByLabel("Choose photos")
-    .setInputFiles({
-      name: "sample.png",
-      mimeType: "image/png",
-      buffer: Buffer.from(
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aC7sAAAAASUVORK5CYII=",
-        "base64",
-      ),
-    });
+  await page.getByLabel("Choose photos").setInputFiles({
+    name: "sample.png",
+    mimeType: "image/png",
+    buffer: Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aC7sAAAAASUVORK5CYII=",
+      "base64",
+    ),
+  });
   await expect(
     page.getByAltText("Selected attachment: sample.png"),
   ).toBeVisible();
