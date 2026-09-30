@@ -30,6 +30,7 @@ export default function RegisterPage() {
       await registerUser({
         name: fields.name,
         email: fields.email,
+        mobile: fields.mobile,
         password: fields.password,
       });
       window.location.hash = "/dashboard";

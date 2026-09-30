@@ -49,7 +49,7 @@ export default function Navbar({ path }) {
             <>
               <a href="#/dashboard">My dashboard</a>
               <Button variant="outline" onClick={leaveSession}>
-                {demo ? "Exit demo" : "Leave session"}
+                {demo ? "Exit demo" : "Sign out"}
               </Button>
             </>
           ) : (

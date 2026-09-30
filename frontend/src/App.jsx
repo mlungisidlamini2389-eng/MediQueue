@@ -33,11 +33,21 @@ export default function App() {
   const [submitted, setSubmitted] = useState(false);
   const [consultationId, setConsultationId] = useState("");
   const [appointment, setAppointment] = useState(null);
+  const [savedReview, setSavedReview] = useState(null);
   const { user, demo, leaveSession } = useAuth();
+  function updateDraft(value) {
+    setSavedReview(null);
+    setSubmitted(false);
+    setConsultationId("");
+    setAppointment(null);
+    setDraft(value);
+  }
   async function submitConsultation() {
     if (user) {
       const consultation = await createConsultation(draft);
       setConsultationId(consultation.id);
+      setSavedReview(consultation);
+      setSubmitted(true);
       await Promise.all(
         draft.photos.map((photo) =>
           uploadConsultationImage(consultation.id, photo),
@@ -46,7 +56,7 @@ export default function App() {
     }
     setSubmitted(true);
     setAppointment(null);
-    window.location.hash = "/appointment";
+    if (demo) window.location.hash = "/appointment";
   }
   useEffect(() => {
     const change = () => setPath(window.location.hash.slice(1) || "/");
@@ -58,6 +68,7 @@ export default function App() {
       setDraft(emptyDraft());
       setSubmitted(false);
       setConsultationId("");
+      setSavedReview(null);
       setAppointment(null);
     }
   }, [user, demo]);
@@ -67,6 +78,7 @@ export default function App() {
       .then((consultation) => {
         if (!consultation) return;
         setConsultationId(consultation.id);
+        setSavedReview(consultation);
         setSubmitted(true);
         setAppointment(consultation.appointment);
         setDraft({
@@ -117,7 +129,7 @@ export default function App() {
   else if (path === "/dashboard")
     page = <PatientDashboard draft={draft} submitted={submitted} demo={demo} />;
   else if (path === "/consultation")
-    page = <PreConsultation draft={draft} setDraft={setDraft} />;
+    page = <PreConsultation draft={draft} setDraft={updateDraft} />;
   else if (
     ["/upload", "/review", "/appointment"].includes(path) &&
     (!draft.symptoms.length || !draft.duration || !draft.impact)
@@ -132,11 +144,14 @@ export default function App() {
       </main>
     );
   else if (path === "/upload")
-    page = <UploadSymptoms draft={draft} setDraft={setDraft} />;
+    page = <UploadSymptoms draft={draft} setDraft={updateDraft} />;
   else if (path === "/review")
     page = (
       <ReviewPage
         draft={draft}
+        demo={demo}
+        savedReview={savedReview}
+        onSummaryUpdate={(result) => setSavedReview(previous => ({ ...previous, ...result }))}
         onSubmit={submitConsultation}
       />
     );

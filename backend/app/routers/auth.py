@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta, timezone
+import os
 import re
 import uuid
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 
 from app.database import get_connection
-from app.schemas.user import AuthResponse, LoginRequest, RegisterRequest, UserResponse
+from app.schemas.user import AdminLoginRequest, AuthResponse, LoginRequest, RegisterRequest, UserResponse
 from app.security import create_session_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -41,7 +42,7 @@ def issue_session(response: Response, user_id: str):
 
 def user_response(row) -> UserResponse:
 	return UserResponse(
-		id=row["id"], name=row["name"], email=row["email"], role=row["role"]
+		id=row["id"], name=row["name"], email=row["email"], role=row["role"], mobile=row["mobile"]
 	)
 
 
@@ -55,11 +56,11 @@ def register(payload: RegisterRequest, response: Response):
 	try:
 		with get_connection() as connection:
 			connection.execute(
-				"INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)",
-				(user_id, name, email, hash_password(payload.password)),
+				"INSERT INTO users (id, name, email, password_hash, mobile) VALUES (?, ?, ?, ?, ?)",
+				(user_id, name, email, hash_password(payload.password), payload.mobile),
 			)
 			row = connection.execute(
-				"SELECT id, name, email, role FROM users WHERE id = ?", (user_id,)
+				"SELECT id, name, email, role, mobile FROM users WHERE id = ?", (user_id,)
 			).fetchone()
 	except Exception as error:
 		if "UNIQUE constraint failed" in str(error):
@@ -69,12 +70,26 @@ def register(payload: RegisterRequest, response: Response):
 	return AuthResponse(user=user_response(row))
 
 
+@router.post("/admin/login", response_model=AuthResponse)
+def admin_login(payload: AdminLoginRequest, response: Response):
+	admin_email = os.getenv("MEDIQUEUE_ADMIN_EMAIL", "admin@mediqueue.local").strip().lower()
+	with get_connection() as connection:
+		row = connection.execute(
+			"SELECT id, name, email, password_hash, role, mobile FROM users WHERE email = ? AND role = 'admin'",
+			(admin_email,),
+		).fetchone()
+	if not row or not verify_password(payload.password, row["password_hash"]):
+		raise HTTPException(status_code=401, detail="Admin password is incorrect.")
+	issue_session(response, row["id"])
+	return AuthResponse(user=user_response(row))
+
+
 @router.post("/login", response_model=AuthResponse)
 def login(payload: LoginRequest, response: Response):
 	email = normalize_email(payload.email)
 	with get_connection() as connection:
 		row = connection.execute(
-			"SELECT id, name, email, password_hash, role FROM users WHERE email = ?",
+			"SELECT id, name, email, password_hash, role, mobile FROM users WHERE email = ?",
 			(email,),
 		).fetchone()
 	if not row or not verify_password(payload.password, row["password_hash"]):
@@ -89,7 +104,7 @@ def get_current_user(mediqueue_session: str | None = Cookie(default=None)) -> Us
 	with get_connection() as connection:
 		row = connection.execute(
 			"""
-			SELECT users.id, users.name, users.email, users.role
+			SELECT users.id, users.name, users.email, users.role, users.mobile
 			FROM sessions JOIN users ON users.id = sessions.user_id
 			WHERE sessions.token = ? AND sessions.expires_at > ?
 			""",

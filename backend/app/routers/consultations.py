@@ -1,12 +1,18 @@
 import json
 import uuid
+from app.services.notification_service import notification_statuses
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
 from app.database import get_connection
 from app.routers.auth import get_current_user
-from app.schemas.consultation import ConsultationCreate, ConsultationResponse
+from app.schemas.consultation import (
+	ConsultationCreate,
+	ConsultationResponse,
+	ConsultationSummaryResponse,
+)
+from app.services.ai_service import generate_patient_summary, generate_saved_summary, stored_summary
 from app.schemas.user import UserResponse
 
 router = APIRouter(prefix="/consultations", tags=["consultations"])
@@ -40,9 +46,18 @@ def latest_patient_consultation(user: UserResponse = Depends(get_current_user)):
 		"history": row["history"],
 		"medicines": row["medicines"],
 		"notes": row["notes"],
-		"appointment": dict(appointment) if appointment else None,
+		**stored_summary(row),
+		"appointment": {**dict(appointment), "notifications": notification_statuses(appointment["id"])} if appointment else None,
 		"offers": [dict(offer) for offer in offers],
 	}
+
+
+@router.post("/summary", response_model=ConsultationSummaryResponse)
+def preview_consultation_summary(
+	payload: ConsultationCreate,
+	_user: UserResponse = Depends(get_current_user),
+):
+	return ConsultationSummaryResponse(summary=generate_patient_summary(payload))
 
 
 @router.post("", response_model=ConsultationResponse, status_code=status.HTTP_201_CREATED)
@@ -51,12 +66,13 @@ def create_consultation(
 	user: UserResponse = Depends(get_current_user),
 ):
 	consultation_id = str(uuid.uuid4())
+	summary = generate_patient_summary(payload)
 	with get_connection() as connection:
 		connection.execute(
 			"""
 			INSERT INTO consultations
-			(id, patient_id, symptoms, duration, impact, history, medicines, notes)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+			(id, patient_id, symptoms, duration, impact, history, medicines, notes, summary)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 			""",
 			(
 				consultation_id,
@@ -67,9 +83,19 @@ def create_consultation(
 				payload.history,
 				payload.medicines,
 				payload.notes,
+				summary,
 			),
 		)
-	return ConsultationResponse(id=consultation_id, status="created")
+	return ConsultationResponse(id=consultation_id, status="created", **generate_saved_summary(consultation_id))
+
+
+@router.post("/{consultation_id}/summary", response_model=ConsultationSummaryResponse)
+def retry_consultation_summary(consultation_id: str, user: UserResponse = Depends(get_current_user)):
+	with get_connection() as connection:
+		row = connection.execute("SELECT patient_id FROM consultations WHERE id = ?", (consultation_id,)).fetchone()
+	if not row or (row["patient_id"] != user.id and user.role != "admin"):
+		raise HTTPException(status_code=404, detail="Consultation not found.")
+	return ConsultationSummaryResponse(**generate_saved_summary(consultation_id))
 
 
 @router.post("/{consultation_id}/images", status_code=status.HTTP_201_CREATED)

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PatientSummary from "../components/PatientSummary";
 import { CalendarClock, ClipboardList, RefreshCw } from "lucide-react";
 import {
   getAdminConsultations,
@@ -123,6 +124,7 @@ export default function AdminDashboard() {
                   <div><strong>Current medicines</strong><p>{consultation.medicines || "Not provided"}</p></div>
                   <div><strong>Additional notes</strong><p>{consultation.notes || "Not provided"}</p></div>
                 </div>
+                <PatientSummary record={consultation} onUpdate={(result) => setConsultations(previous => previous.map(item => item.id === consultation.id ? { ...item, ...result } : item))} />
                 {consultation.images.length > 0 && (
                   <div className="admin-images">
                     <strong>Patient photos</strong>

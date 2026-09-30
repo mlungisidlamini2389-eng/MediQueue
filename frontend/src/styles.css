@@ -1200,6 +1200,27 @@ input[type="checkbox"] {
   margin: 0;
   line-height: 1.6;
 }
+.patient-summary {
+  margin: 22px 0;
+  padding: 18px 20px;
+  border-left: 3px solid var(--blue);
+  background: #f3f7ff;
+  text-align: left;
+}
+.patient-summary h2,
+.patient-summary h3 {
+  margin: 0 0 9px;
+  font-size: 18px;
+}
+.patient-summary p {
+  margin: 0;
+  color: var(--navy);
+  line-height: 1.7;
+  white-space: pre-line;
+}
+.admin-patient-summary {
+  margin: 0 0 18px;
+}
 .flow-container {
   max-width: 730px;
   margin: 45px auto 65px;

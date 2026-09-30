@@ -1,4 +1,5 @@
 import json
+from app.services.ai_service import stored_summary
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -44,6 +45,7 @@ def consultation_queue(admin: UserResponse = Depends(require_admin)):
 					"history": row["history"],
 					"medicines": row["medicines"],
 					"notes": row["notes"],
+					**stored_summary(row),
 					"created_at": row["created_at"],
 					"images": [dict(image) for image in images],
 					"offers": [dict(offer) for offer in offers],

@@ -8,7 +8,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
 export default function LoginPage({ role = "patient" }) {
-  const { signInWithPassword, googleSignIn, startDemo } = useAuth();
+  const { signInWithPassword, signInAsAdmin, googleSignIn, startDemo } = useAuth();
   const target = useRef(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,18 +18,19 @@ export default function LoginPage({ role = "patient" }) {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   async function handleSubmit(event) {
     event.preventDefault();
-    if (!email.trim() || !email.includes("@")) {
+    if (role !== "admin" && (!email.trim() || !email.includes("@"))) {
       setError("Enter a valid email address.");
       return;
     }
-    if (password.length < 6) {
-      setError("Your password must be at least 6 characters.");
+    if (password.length < (role === "admin" ? 1 : 6)) {
+      setError(role === "admin" ? "Enter your admin password." : "Your password must be at least 6 characters.");
       return;
     }
     setBusy(true);
     setError("");
     try {
-      await signInWithPassword(email, password);
+      if (role === "admin") await signInAsAdmin(password);
+      else await signInWithPassword(email, password);
       window.location.hash = role === "admin" ? "/admin" : "/dashboard";
     } catch (loginError) {
       setError(loginError.message);
@@ -38,7 +39,7 @@ export default function LoginPage({ role = "patient" }) {
     }
   }
   useEffect(() => {
-    if (!clientId) return;
+    if (!clientId || role === "admin") return;
     let active = true;
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";
@@ -126,9 +127,9 @@ export default function LoginPage({ role = "patient" }) {
           <a href="#/login/patient" aria-current={role === "patient" ? "page" : undefined}>Patient</a>
           <a href="#/login/admin" aria-current={role === "admin" ? "page" : undefined}>Admin</a>
         </div>
-        {role === "admin" && <p className="login-small">Use your authorised admin account to continue.</p>}
+        {role === "admin" && <p className="login-small">Enter your admin password to continue.</p>}
         <form className="login-fields" onSubmit={handleSubmit}>
-          <label className="register-field">
+          {role !== "admin" && <label className="register-field">
             <span>Email address</span>
             <input
               type="email"
@@ -139,7 +140,7 @@ export default function LoginPage({ role = "patient" }) {
               placeholder="you@example.com"
               required
             />
-          </label>
+          </label>}
           <label className="register-field">
             <span>Password</span>
             <input
@@ -149,7 +150,7 @@ export default function LoginPage({ role = "patient" }) {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Your password"
-              minLength={6}
+              minLength={role === "admin" ? 1 : 6}
               required
             />
           </label>
@@ -157,6 +158,7 @@ export default function LoginPage({ role = "patient" }) {
             Sign in
           </button>
         </form>
+        {role !== "admin" && <>
         <div className="divider">
           <span>Or continue with</span>
         </div>
@@ -176,6 +178,9 @@ export default function LoginPage({ role = "patient" }) {
           {clientId && !ready && !error && (
             <p role="status">Loading Google sign-in…</p>
           )}
+        </div>
+        </>}
+        <div aria-live="polite">
           {busy && <p role="status">Signing you in…</p>}
           {error && (
             <p className="error" role="alert">

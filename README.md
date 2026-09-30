@@ -22,10 +22,11 @@ npm.cmd run dev
 - Database-backed patient sign-in and registration, plus optional Google sign-in when configured.
 - Separate patient demo for exploring the flow without an account.
 - Patient dashboard, symptom questionnaire, image upload, review, and admin-offered appointment selection.
+- Patient-response summary shown in review and the admin consultation queue.
 - Keyboard-accessible forms, validation, mobile navigation and reduced-motion support.
 - Role-protected admin review of submitted prototype data and appointment options.
 
-Use fictional information. Demo answers and image files stay in React memory and are never uploaded. Signed-in consultation data and uploaded attachments are stored by the local backend for review. No AI inference or medical triage is performed.
+Use fictional information. Demo answers and image files stay in React memory and are never uploaded. Signed-in consultation data, summaries, and uploaded attachments are stored by the local backend for review. Ollama can suggest possible conditions for clinical discussion, but must not diagnose or recommend treatment; a healthcare professional must review the summary against the original answers.
 
 ## Prototype accounts
 
@@ -33,24 +34,11 @@ Patient accounts are stored in the local SQLite database. Patients can submit
 consultations, and an administrator can review them and offer appointment dates
 for the patient to choose.
 
-### Create the first admin
+### Admin login
 
-Set these environment variables in the same PowerShell terminal before starting
-the backend. Use your own email and a strong private password:
+Choose **Log in as Admin** on the home page and enter the local prototype password `Admin@`. No email is required. Restart the backend after updating to initialise the admin account.
 
-```powershell
-$env:MEDIQUEUE_ADMIN_EMAIL = "admin@example.com"
-$env:MEDIQUEUE_ADMIN_PASSWORD = "choose-a-strong-private-password"
-$env:MEDIQUEUE_ADMIN_NAME = "MediQueue Admin"
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-On startup, the backend creates or promotes that account to the admin role and
-sets its password to `MEDIQUEUE_ADMIN_PASSWORD`. Sign in through the normal
-login page with those credentials, then open `#/admin`. Do not expose these
-environment values in frontend configuration or commit them to source control.
+The backend hashes the password and verifies it before issuing a session cookie. The local default account is `admin@mediqueue.local`. Set `MEDIQUEUE_ADMIN_EMAIL`, `MEDIQUEUE_ADMIN_PASSWORD`, and optionally `MEDIQUEUE_ADMIN_NAME` to override the defaults. An existing password override takes precedence. Use a private password before sharing or deploying the app.
 
 ## Google sign-in
 
@@ -72,6 +60,14 @@ Sessions restore through `/auth/me`, and “Leave session” revokes the backend
 FastAPI with SQLite is currently used for local development. The browser accesses data through FastAPI; it never connects directly to the database. Admin credentials are configured only in the backend environment. Variables prefixed with `VITE_` are public browser configuration.
 
 Next work: production database migrations, verified Google authentication, clinician roles and review workflow, and integration with a real appointment availability source.
+
+## Appointment SMS and email
+
+When a patient selects an offered date, MediQueue saves the booking and requests SMS and email confirmations using the confirmed mobile number and registered email. Connect Twilio and SMTP before expecting live messages. See [notification setup and status details](docs/notifications.md). The confirmation screen reports unavailable services or sending failures without cancelling the booking.
+
+## Ollama patient summaries
+
+Install Ollama, run `ollama pull llama3.2:3b`, and keep Ollama running locally. After submission, the patient and admin see the exact same stored summary, including cautious possible conditions when supported by the responses. If Ollama is unavailable or output fails validation, a basic summary is clearly labelled and can be retried. See [setup, validation and limitations](docs/ai-summary.md). No OpenAI API key is needed.
 
 ## Frontend checks
 

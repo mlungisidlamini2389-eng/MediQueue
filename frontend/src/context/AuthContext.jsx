@@ -5,6 +5,7 @@ import {
   signInWithGoogle,
   signInWithPassword as signInWithPasswordRequest,
   signOut,
+  signInAsAdmin as signInAsAdminRequest,
 } from "../services/api";
 const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
@@ -19,8 +20,12 @@ export function AuthProvider({ children }) {
     setUser(await signInWithPasswordRequest(email, password));
     setDemo(false);
   }
-  async function registerUser({ name, email, password }) {
-    setUser(await registerUserRequest(name, email, password));
+  async function signInAsAdmin(password) {
+    setUser(await signInAsAdminRequest(password));
+    setDemo(false);
+  }
+  async function registerUser({ name, email, password, mobile }) {
+    setUser(await registerUserRequest(name, email, password, mobile));
     setDemo(false);
   }
   async function googleSignIn(credential) {
@@ -44,6 +49,7 @@ export function AuthProvider({ children }) {
         user,
         demo,
         signInWithPassword,
+        signInAsAdmin,
         registerUser,
         googleSignIn,
         startDemo,

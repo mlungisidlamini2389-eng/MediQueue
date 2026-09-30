@@ -5,15 +5,27 @@ async function requestJson(path, options) {
     ...options,
     credentials: "include",
     headers: { "Content-Type": "application/json", ...options?.headers },
-    signal: AbortSignal.timeout(15000),
+    signal: options?.signal || AbortSignal.timeout(15000),
   });
   if (!response.ok) {
     const data = await response.json().catch(() => null);
+    const detail = Array.isArray(data?.detail)
+      ? data.detail.map((issue) => issue.msg).join(" ")
+      : data?.detail;
     if (response.status === 401)
-      throw new Error(data?.detail || "Please sign in to continue.");
-    throw new Error(data?.detail || "The request could not be completed.");
+      throw new Error(detail || "Please sign in to continue.");
+    throw new Error(detail || "The request could not be completed.");
   }
   return response.status === 204 ? null : response.json();
+}
+
+export async function signInAsAdmin(password) {
+  const data = await requestJson("/auth/admin/login", {
+    method: "POST",
+    body: JSON.stringify({ password }),
+  });
+  if (!data.user?.name || data.user.role !== "admin") throw new Error("Administrator access required.");
+  return data.user;
 }
 
 export async function signInWithPassword(email, password) {
@@ -25,10 +37,10 @@ export async function signInWithPassword(email, password) {
   return data.user;
 }
 
-export async function registerUser(name, email, password) {
+export async function registerUser(name, email, password, mobile) {
   const data = await requestJson("/auth/register", {
     method: "POST",
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ name, email, password, mobile }),
   });
   if (!data.user?.name) throw new Error("The registration response was incomplete.");
   return data.user;
@@ -47,6 +59,7 @@ export async function getCurrentUser() {
 export async function createConsultation(draft) {
   return requestJson("/consultations", {
     method: "POST",
+    signal: AbortSignal.timeout(240000),
     body: JSON.stringify({
       symptoms: draft.symptoms,
       duration: draft.duration,
@@ -55,6 +68,21 @@ export async function createConsultation(draft) {
       medicines: draft.medicines,
       notes: draft.notes,
     }),
+  });
+}
+
+export async function previewConsultationSummary(draft, signal) {
+  return requestJson("/consultations/summary", {
+    method: "POST",
+    body: JSON.stringify({
+      symptoms: draft.symptoms,
+      duration: draft.duration,
+      impact: draft.impact,
+      history: draft.history,
+      medicines: draft.medicines,
+      notes: draft.notes,
+    }),
+    signal,
   });
 }
 
@@ -96,9 +124,11 @@ export async function getLatestConsultation() {
   return requestJson("/consultations/mine/latest", { method: "GET" });
 }
 
-export async function selectAppointmentOffer(offerId) {
+export async function selectAppointmentOffer(offerId, mobile) {
   return requestJson(`/appointments/offers/${offerId}/select`, {
     method: "POST",
+    body: JSON.stringify({ mobile }),
+    signal: AbortSignal.timeout(60000),
   });
 }
 
@@ -121,4 +151,8 @@ export async function signInWithGoogle(credential) {
   });
   if (!data.user?.name) throw new Error("The sign-in response was incomplete.");
   return data.user;
+}
+
+export async function retryConsultationSummary(id) {
+  return requestJson(`/consultations/${id}/summary`, { method: "POST", signal: AbortSignal.timeout(240000) });
 }

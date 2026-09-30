@@ -1,8 +1,11 @@
+import json
 import os
 import sqlite3
 import uuid
 from pathlib import Path
 
+from app.schemas.consultation import ConsultationCreate
+from app.services.basic_summary import generate_patient_summary
 from app.security import hash_password
 
 DATABASE_PATH = Path(
@@ -44,6 +47,7 @@ def initialize_database():
 				history TEXT NOT NULL DEFAULT '',
 				medicines TEXT NOT NULL DEFAULT '',
 				notes TEXT NOT NULL DEFAULT '',
+				summary TEXT NOT NULL DEFAULT '',
 				created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 			);
 			CREATE TABLE IF NOT EXISTS consultation_images (
@@ -80,14 +84,55 @@ def initialize_database():
 			CREATE INDEX IF NOT EXISTS appointment_offers_consultation_idx ON appointment_offers(consultation_id);
 			"""
 		)
+		connection.execute("""
+            CREATE TABLE IF NOT EXISTS appointment_notifications (
+                appointment_id TEXT NOT NULL REFERENCES appointments(id) ON DELETE CASCADE,
+                channel TEXT NOT NULL,
+                recipient TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending',
+                provider_id TEXT NOT NULL DEFAULT '',
+                PRIMARY KEY (appointment_id, channel)
+            )
+        """)
 		user_columns = {
 			row["name"] for row in connection.execute("PRAGMA table_info(users)")
 		}
+		consultation_columns = {
+			row["name"] for row in connection.execute("PRAGMA table_info(consultations)")
+		}
+		if "summary" not in consultation_columns:
+			connection.execute("ALTER TABLE consultations ADD COLUMN summary TEXT NOT NULL DEFAULT ''")
+		for column, definition in {
+			"summary_source": "TEXT NOT NULL DEFAULT 'basic'",
+			"summary_model": "TEXT NOT NULL DEFAULT ''",
+			"summary_generated_at": "TEXT NOT NULL DEFAULT ''",
+		}.items():
+			if column not in consultation_columns:
+				connection.execute(f"ALTER TABLE consultations ADD COLUMN {column} {definition}")
+		# A stopped process must not leave a summary permanently in progress.
+		connection.execute("UPDATE consultations SET summary_source = 'basic' WHERE summary_source = 'generating'")
+		for consultation in connection.execute(
+			"SELECT id, symptoms, duration, impact, history, medicines, notes FROM consultations WHERE summary = ''"
+		).fetchall():
+			payload = ConsultationCreate(
+				symptoms=json.loads(consultation["symptoms"]),
+				duration=consultation["duration"],
+				impact=consultation["impact"],
+				history=consultation["history"],
+				medicines=consultation["medicines"],
+				notes=consultation["notes"],
+			)
+			connection.execute(
+				"UPDATE consultations SET summary = ? WHERE id = ?",
+				(generate_patient_summary(payload), consultation["id"]),
+			)
+		if "mobile" not in user_columns:
+			connection.execute("ALTER TABLE users ADD COLUMN mobile TEXT NOT NULL DEFAULT ''")
 		if "role" not in user_columns:
 			connection.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'patient'")
 
-	admin_email = os.getenv("MEDIQUEUE_ADMIN_EMAIL", "").strip().lower()
-	admin_password = os.getenv("MEDIQUEUE_ADMIN_PASSWORD", "")
+	admin_email = os.getenv("MEDIQUEUE_ADMIN_EMAIL", "admin@mediqueue.local").strip().lower()
+	admin_password = os.getenv("MEDIQUEUE_ADMIN_PASSWORD", "Admin@")
 	if admin_email and admin_password:
 		with get_connection() as connection:
 			admin = connection.execute(

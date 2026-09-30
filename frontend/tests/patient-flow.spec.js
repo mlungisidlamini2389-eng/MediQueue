@@ -58,6 +58,11 @@ test("landing, Google setup state and complete patient demo", async ({
   ).toHaveCount(0);
   await page.getByRole("link", { name: "Review information" }).click();
   await expect(
+    page.getByRole("heading", { name: "Patient-reported summary" }),
+  ).toBeVisible();
+  await expect(page.getByText(/The patient reports Headache/)).toBeVisible();
+  await expect(page.getByText(/does not diagnose a condition/)).toBeVisible();
+  await expect(
     page.getByText("Sample concern for the demo.", { exact: true }),
   ).toBeVisible();
   await expect(
@@ -78,6 +83,56 @@ test("landing, Google setup state and complete patient demo", async ({
     page.getByRole("heading", { name: "Welcome to MediQueue" }),
   ).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test("admin review displays the stored summary and original responses", async ({
+  page,
+}) => {
+  const summary =
+    "The patient reports Headache. The reported onset is Today, and the reported daily impact is Some activities are difficult.\n\nConditions or allergies reported: Sample allergy. No current medicines were included in the responses. No additional concerns were included in the responses.\n\nThis summary is based only on the patient's responses. It does not diagnose a condition or recommend treatment. A healthcare professional should review this summary and the original responses.";
+  await page.route("**/auth/me", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        user: {
+          id: "admin-test",
+          name: "Care Admin",
+          email: "admin@example.com",
+          role: "admin",
+        },
+      }),
+    }),
+  );
+  await page.route("**/admin/consultations", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([
+        {
+          id: "consultation-test",
+          patient: { name: "Sample Patient", email: "patient@example.com" },
+          symptoms: ["Headache"],
+          duration: "Today",
+          impact: "Some activities are difficult",
+          history: "Sample allergy",
+          medicines: "",
+          notes: "",
+          summary,
+          created_at: "2026-09-30 10:00:00",
+          images: [],
+          offers: [],
+        },
+      ]),
+    }),
+  );
+  await page.goto("/#/admin");
+  await expect(
+    page.getByRole("heading", { name: "Sample Patient" }),
+  ).toBeVisible();
+  await expect(page.getByText(summary, { exact: true })).toBeVisible();
+  await expect(page.getByText("Headache", { exact: true })).toBeVisible();
+  await expect(page.getByText("Sample allergy", { exact: true })).toBeVisible();
 });
 
 test("mobile navigation, section links and page widths", async ({ page }) => {

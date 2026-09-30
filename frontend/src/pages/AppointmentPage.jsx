@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import AppointmentCard from "../components/AppointmentCard";
 import Button from "../components/Button";
+import { useAuth } from "../context/AuthContext";
 import {
   getAppointmentOffers,
   selectAppointmentOffer,
 } from "../services/api";
 export default function AppointmentPage({ demo, consultationId, existingAppointment }) {
+  const { user } = useAuth();
+  const [mobile, setMobile] = useState(user?.mobile || "");
   const [offers, setOffers] = useState([]);
   const [appointment, setAppointment] = useState(existingAppointment);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -21,7 +24,7 @@ export default function AppointmentPage({ demo, consultationId, existingAppointm
     setBusy(true);
     setError("");
     try {
-      setAppointment(await selectAppointmentOffer(offerId));
+      setAppointment(await selectAppointmentOffer(offerId, mobile));
       setShowConfirmation(true);
     } catch (bookingError) {
       setError(bookingError.message);
@@ -70,12 +73,20 @@ export default function AppointmentPage({ demo, consultationId, existingAppointm
       ) : (
         <section className="panel appointment-picker">
           <h2>Available times</h2>
+          {offers.length > 0 && <div className="login-fields">
+            <label className="register-field">
+              <span>Mobile number for confirmation SMS</span>
+              <input type="tel" autoComplete="tel" value={mobile} onChange={event => setMobile(event.target.value)} placeholder="0821234567 or +27821234567" maxLength={32} disabled={busy} />
+            </label>
+            <p>Confirmation email: <strong>{user?.email}</strong></p>
+            <p className="muted">Confirm your number, then choose a date to book and request SMS and email confirmations.</p>
+          </div>}
           {offers.map((offer) => (
             <button
               className="slot-button"
               type="button"
               key={offer.id}
-              disabled={busy}
+              disabled={busy || !mobile.trim()}
               onClick={() => chooseOffer(offer.id)}
             >
               <strong>{new Date(offer.starts_at).toLocaleString([], { dateStyle: "full", timeStyle: "short" })}</strong>
@@ -84,6 +95,21 @@ export default function AppointmentPage({ demo, consultationId, existingAppointm
           ))}
           {!offers.length && !error && <p className="muted">No appointment options have been sent yet.</p>}
           {error && <p className="error" role="alert">{error}</p>}
+        </section>
+      )}
+      {!demo && appointment && Object.keys(appointment.notifications || {}).length > 0 && (
+        <section className="panel" aria-label="Confirmation messages" aria-live="polite">
+          <h2>Confirmation messages</h2>
+          {Object.entries(appointment.notifications).map(([channel, status]) => (
+            <p key={channel}><strong>{channel === "sms" ? "SMS" : "Email"}:</strong> {{
+              accepted: "Submitted for delivery.",
+              not_configured: "Not sent. The messaging service is not connected yet.",
+              failed: "Could not be sent. Your appointment is still confirmed.",
+              unknown: "Delivery could not be verified. Your appointment is still confirmed.",
+              pending: "Not sent yet. Your appointment is confirmed.",
+              sending: "Delivery has not been confirmed yet.",
+            }[status] || "Delivery status unavailable."}</p>
+          ))}
         </section>
       )}
       <div className="panel visit-checklist">

@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.database import get_connection
 from app.routers.auth import get_current_user
-from app.schemas.appointment import AppointmentResponse
+from app.schemas.appointment import AppointmentResponse, AppointmentSelection
+from app.services.notification_service import send_confirmations, notification_statuses
 from app.schemas.user import UserResponse
 
 router = APIRouter(prefix="/appointments", tags=["appointments"])
@@ -19,6 +20,7 @@ def to_response(row) -> AppointmentResponse:
 		department=row["department"],
 		location=row["location"],
 		status=row["status"],
+		notifications=notification_statuses(row["id"]),
 	)
 
 
@@ -44,6 +46,7 @@ def list_patient_offers(
 @router.post("/offers/{offer_id}/select", response_model=AppointmentResponse, status_code=status.HTTP_201_CREATED)
 def select_appointment_offer(
 	offer_id: str,
+	payload: AppointmentSelection,
 	user: UserResponse = Depends(get_current_user),
 ):
 	with get_connection() as connection:
@@ -56,6 +59,10 @@ def select_appointment_offer(
 			""",
 			(offer_id, user.id),
 		).fetchone()
+		if offer and offer["status"] == "selected":
+			existing = connection.execute("SELECT * FROM appointments WHERE slot_id = ? AND patient_id = ?", (f"offer:{offer_id}", user.id)).fetchone()
+			if existing:
+				return to_response(existing)
 		if not offer or offer["status"] != "offered":
 			raise HTTPException(status_code=404, detail="That appointment option is no longer available.")
 		if connection.execute(
@@ -87,9 +94,17 @@ def select_appointment_offer(
 			"UPDATE appointment_offers SET status = 'withdrawn' WHERE consultation_id = ? AND id != ? AND status = 'offered'",
 			(offer["consultation_id"], offer_id),
 		)
+		connection.execute("UPDATE users SET mobile = ? WHERE id = ?", (payload.mobile, user.id))
+		for channel, recipient in (("sms", payload.mobile), ("email", user.email)):
+			connection.execute("INSERT INTO appointment_notifications (appointment_id, channel, recipient) VALUES (?, ?, ?)", (appointment_id, channel, recipient))
 		row = connection.execute(
 			"SELECT * FROM appointments WHERE id = ?", (appointment_id,)
 		).fetchone()
+	# Notification failures must never undo or hide a confirmed booking.
+	try:
+		send_confirmations(dict(row))
+	except Exception:
+		pass
 	return to_response(row)
 
 
