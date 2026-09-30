@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { UploadCloud, X, ArrowRight } from "lucide-react";
+import { UploadCloud, Camera, X, ArrowRight } from "lucide-react";
 import ProgressBar from "../components/ProgressBar";
 import QuestionCard from "../components/QuestionCard";
 import Button from "../components/Button";
@@ -66,17 +66,32 @@ export default function UploadSymptoms({ draft, setDraft }) {
           />
         </label>
         <small className="character-count">{draft.notes.length}/3000</small>
-        <label className="upload-zone">
-          <UploadCloud size={30} />
-          <strong>Choose photos to attach</strong>
-          <span>JPG, PNG or WebP · up to 5 MB each · maximum 3</span>
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            multiple
-            onChange={addPhotos}
-          />
-        </label>
+        <div className="upload-options">
+          <label className="upload-zone">
+            <UploadCloud size={30} />
+            <strong>Choose photos</strong>
+            <span>JPG, PNG or WebP · up to 5 MB each</span>
+            <input
+              aria-label="Choose photos"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              onChange={addPhotos}
+            />
+          </label>
+          <label className="upload-zone">
+            <Camera size={30} />
+            <strong>Take a photo</strong>
+            <span>Photograph a visible concern with your camera</span>
+            <input
+              aria-label="Take a photo"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              capture="environment"
+              onChange={addPhotos}
+            />
+          </label>
+        </div>
         <p className="muted small">
           Demo attachments stay in this tab and are not uploaded. Please use
           sample images.

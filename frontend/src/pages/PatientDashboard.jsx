@@ -7,7 +7,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
 import AppointmentCard from "../components/AppointmentCard";
-export default function PatientDashboard({ draft, submitted }) {
+export default function PatientDashboard({ draft, submitted, demo }) {
   const { user } = useAuth();
   return (
     <main className="container workspace">
@@ -32,9 +32,9 @@ export default function PatientDashboard({ draft, submitted }) {
             <li>Add any other details</li>
             <li>Review your information</li>
           </ul>
-          <Button href={submitted ? "#/review" : "#/consultation"}>
+          <Button href={submitted ? (demo ? "#/review" : "#/appointment") : "#/consultation"}>
             {submitted
-              ? "View your pre-consultation"
+              ? demo ? "View your pre-consultation" : "View appointment options"
               : draft.symptoms.length
                 ? "Continue pre-consultation"
                 : "Start pre-consultation"}

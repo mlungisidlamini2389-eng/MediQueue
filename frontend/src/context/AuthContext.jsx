@@ -1,9 +1,28 @@
-import { createContext, useContext, useState } from "react";
-import { signInWithGoogle } from "../services/api";
+import { createContext, useContext, useEffect, useState } from "react";
+import {
+  registerUser as registerUserRequest,
+  getCurrentUser,
+  signInWithGoogle,
+  signInWithPassword as signInWithPasswordRequest,
+  signOut,
+} from "../services/api";
 const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [demo, setDemo] = useState(false);
+  useEffect(() => {
+    getCurrentUser()
+      .then(setUser)
+      .catch(() => {});
+  }, []);
+  async function signInWithPassword(email, password) {
+    setUser(await signInWithPasswordRequest(email, password));
+    setDemo(false);
+  }
+  async function registerUser({ name, email, password }) {
+    setUser(await registerUserRequest(name, email, password));
+    setDemo(false);
+  }
   async function googleSignIn(credential) {
     setUser(await signInWithGoogle(credential));
     setDemo(false);
@@ -13,14 +32,23 @@ export function AuthProvider({ children }) {
     setUser(null);
     window.location.hash = "/dashboard";
   }
-  function leaveSession() {
+  async function leaveSession() {
+    if (user) await signOut().catch(() => {});
     setUser(null);
     setDemo(false);
     window.location.hash = "/";
   }
   return (
     <AuthContext.Provider
-      value={{ user, demo, googleSignIn, startDemo, leaveSession }}
+      value={{
+        user,
+        demo,
+        signInWithPassword,
+        registerUser,
+        googleSignIn,
+        startDemo,
+        leaveSession,
+      }}
     >
       {children}
     </AuthContext.Provider>

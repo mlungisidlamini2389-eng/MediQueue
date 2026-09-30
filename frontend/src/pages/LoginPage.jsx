@@ -7,13 +7,36 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
-export default function LoginPage() {
-  const { googleSignIn, startDemo } = useAuth();
+export default function LoginPage({ role = "patient" }) {
+  const { signInWithPassword, googleSignIn, startDemo } = useAuth();
   const target = useRef(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  async function handleSubmit(event) {
+    event.preventDefault();
+    if (!email.trim() || !email.includes("@")) {
+      setError("Enter a valid email address.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Your password must be at least 6 characters.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      await signInWithPassword(email, password);
+      window.location.hash = role === "admin" ? "/admin" : "/dashboard";
+    } catch (loginError) {
+      setError(loginError.message);
+    } finally {
+      setBusy(false);
+    }
+  }
   useEffect(() => {
     if (!clientId) return;
     let active = true;
@@ -37,7 +60,7 @@ export default function LoginPage() {
           setError("");
           try {
             await googleSignIn(credential);
-            if (active) window.location.hash = "/dashboard";
+            if (active) window.location.hash = role === "admin" ? "/admin" : "/dashboard";
           } catch {
             if (active)
               setError(
@@ -70,7 +93,7 @@ export default function LoginPage() {
       clearTimeout(timer);
       script.remove();
     };
-  }, [clientId]);
+  }, [clientId, role]);
   return (
     <main className="login-layout container">
       <section className="login-story">
@@ -98,7 +121,45 @@ export default function LoginPage() {
           <ArrowLeft size={16} /> Back to home
         </a>
         <h2>Welcome to MediQueue</h2>
-        <p className="muted">One account. A simpler way to prepare for care.</p>
+        <p className="muted">{role === "admin" ? "Log in as Admin" : "Log in as Patient"}</p>
+        <div className="login-role-options" aria-label="Login options">
+          <a href="#/login/patient" aria-current={role === "patient" ? "page" : undefined}>Patient</a>
+          <a href="#/login/admin" aria-current={role === "admin" ? "page" : undefined}>Admin</a>
+        </div>
+        {role === "admin" && <p className="login-small">Use your authorised admin account to continue.</p>}
+        <form className="login-fields" onSubmit={handleSubmit}>
+          <label className="register-field">
+            <span>Email address</span>
+            <input
+              type="email"
+              name="email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@example.com"
+              required
+            />
+          </label>
+          <label className="register-field">
+            <span>Password</span>
+            <input
+              type="password"
+              name="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Your password"
+              minLength={6}
+              required
+            />
+          </label>
+          <button className="button button-primary login-submit" type="submit" disabled={busy}>
+            Sign in
+          </button>
+        </form>
+        <div className="divider">
+          <span>Or continue with</span>
+        </div>
         <div className="google-area" aria-busy={busy}>
           <div ref={target} />
           {!clientId && (
@@ -108,7 +169,7 @@ export default function LoginPage() {
               </button>
               <p className="setup-note">
                 Google sign-in will be available when the service is connected.
-                You can explore the demo below.
+                {role === "patient" && "You can explore the demo below."}
               </p>
             </>
           )}
@@ -122,9 +183,7 @@ export default function LoginPage() {
             </p>
           )}
         </div>
-        <p className="login-small">
-          We use Google for sign-in, so there’s no extra password to remember.
-        </p>
+        {role === "patient" && <>
         <div className="divider">
           <span>Just taking a look?</span>
         </div>
@@ -136,6 +195,10 @@ export default function LoginPage() {
           <br />
           <a href="#/privacy">Read about this prototype’s privacy</a>
         </p>
+        <p className="login-small register-linkline">
+          New to MediQueue? <a href="#/register">Create an account</a>
+        </p>
+        </>}
       </section>
     </main>
   );

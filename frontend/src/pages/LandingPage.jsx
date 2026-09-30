@@ -92,6 +92,15 @@ export default function LandingPage({ section }) {
                 See how it works
               </a>
             </div>
+            {!user && !demo && (
+              <section className="home-sign-in" aria-label="Sign in">
+                <h2>Sign in to MediQueue</h2>
+                <div className="login-role-options">
+                  <Button href="#/login/patient">Log in as Patient</Button>
+                  <Button href="#/login/admin" variant="outline">Log in as Admin</Button>
+                </div>
+              </section>
+            )}
             <div className="hero-reassurance">
               <ShieldCheck size={17} />
               <span>Thoughtfully designed. Always human-led.</span>

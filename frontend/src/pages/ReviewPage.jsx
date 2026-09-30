@@ -4,6 +4,19 @@ import ProgressBar from "../components/ProgressBar";
 import Button from "../components/Button";
 export default function ReviewPage({ draft, onSubmit }) {
   const [confirmed, setConfirmed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function submit() {
+    setBusy(true);
+    setError("");
+    try {
+      await onSubmit();
+    } catch (submitError) {
+      setError(submitError.message);
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <main className="flow-container">
       <h1>Does everything look right?</h1>
@@ -54,12 +67,13 @@ export default function ReviewPage({ draft, onSubmit }) {
           booking.
         </label>
       </section>
+      {error && <p className="error" role="alert">{error}</p>}
       <div className="flow-actions">
         <Button variant="outline" href="#/upload">
           Back
         </Button>
-        <Button disabled={!confirmed} onClick={onSubmit}>
-          Preview appointment <ArrowRight size={16} />
+        <Button disabled={!confirmed || busy} onClick={submit}>
+          {busy ? "Saving..." : "Preview appointment"} <ArrowRight size={16} />
         </Button>
       </div>
     </main>

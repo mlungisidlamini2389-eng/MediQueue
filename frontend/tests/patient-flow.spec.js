@@ -6,6 +6,7 @@ test("landing, Google setup state and complete patient demo", async ({
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
+  await expect(page.getByRole("link", { name: "Log in as Admin" })).toBeVisible();
   await expect(
     page.getByRole("heading", { name: /Less time in line/ }),
   ).toBeVisible();
@@ -39,7 +40,7 @@ test("landing, Google setup state and complete patient demo", async ({
     .getByLabel("Additional symptoms or concerns")
     .fill("Sample concern for the demo.");
   await page
-    .locator("input[type=file]")
+    .getByLabel("Choose photos")
     .setInputFiles({
       name: "sample.png",
       mimeType: "image/png",
