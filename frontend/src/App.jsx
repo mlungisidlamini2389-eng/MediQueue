@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import LandingPage from "./pages/LandingPage";
@@ -19,6 +19,7 @@ import {
   uploadConsultationImage,
 } from "./services/api";
 const emptyDraft = () => ({
+  submissionId: crypto.randomUUID(),
   symptoms: [],
   duration: "",
   impact: "",
@@ -53,11 +54,49 @@ export default function App() {
           uploadConsultationImage(consultation.id, photo),
         ),
       );
+      const failures = uploads.filter((result) => result.status === "rejected");
+      if (failures.length) {
+        throw new Error(
+          `Your consultation was saved, but ${failures.length} ${failures.length === 1 ? "image" : "images"} could not be uploaded. Try submitting again; saved images will not be duplicated.`,
+        );
+      }
     }
     setSubmitted(true);
     setAppointment(null);
     if (demo) window.location.hash = "/appointment";
   }
+
+  const refreshPatientData = useCallback(async () => {
+    if (!user || demo) return;
+    setPatientDataLoading(true);
+    setPatientDataError("");
+    try {
+      const consultation = await getLatestConsultation();
+      if (!consultation) {
+        setSubmitted(false);
+        setConsultationId("");
+        setAppointment(null);
+        return;
+      }
+      setAppointment(consultation.appointment);
+      setConsultationId(consultation.id);
+      setSubmitted(true);
+      setDraft({
+        submissionId: consultation.submission_id || crypto.randomUUID(),
+        symptoms: consultation.symptoms,
+        duration: consultation.duration,
+        impact: consultation.impact,
+        history: consultation.history,
+        medicines: consultation.medicines,
+        notes: consultation.notes,
+        photos: [],
+      });
+    } catch (error) {
+      setPatientDataError(error.message);
+    } finally {
+      setPatientDataLoading(false);
+    }
+  }, [user, demo]);
   useEffect(() => {
     const change = () => setPath(window.location.hash.slice(1) || "/");
     window.addEventListener("hashchange", change);
@@ -70,6 +109,8 @@ export default function App() {
       setConsultationId("");
       setSavedReview(null);
       setAppointment(null);
+      setPatientDataError("");
+      setPatientDataLoading(false);
     }
   }, [user, demo]);
   useEffect(() => {
@@ -108,12 +149,18 @@ export default function App() {
     "/admin",
   ].includes(path);
   let page;
-  if (protectedPage && !user && !demo) page = <LoginPage key={path} role={path === "/admin" ? "admin" : "patient"} />;
+  if (protectedPage && !user && !demo)
+    page = (
+      <LoginPage key={path} role={path === "/admin" ? "admin" : "patient"} />
+    );
   else if (path === "/admin" && user?.role !== "admin")
     page = (
       <main className="flow-container">
         <h1>Administrator access required.</h1>
-        <p className="page-intro">Sign in with an administrator account to review consultations. Your current account is a patient account.</p>
+        <p className="page-intro">
+          Sign in with an administrator account to review consultations. Your
+          current account is a patient account.
+        </p>
         <Button onClick={leaveSession}>Switch account</Button>
       </main>
     );
@@ -124,10 +171,25 @@ export default function App() {
         <LandingPage />
       </main>
     );
-  else if (["/login", "/login/patient", "/login/admin"].includes(path)) page = <LoginPage key={path} role={path === "/login/admin" ? "admin" : "patient"} />;
+  else if (["/login", "/login/patient", "/login/admin"].includes(path))
+    page = (
+      <LoginPage
+        key={path}
+        role={path === "/login/admin" ? "admin" : "patient"}
+      />
+    );
   else if (path === "/register") page = <RegisterPage />;
   else if (path === "/dashboard")
-    page = <PatientDashboard draft={draft} submitted={submitted} demo={demo} />;
+    page = (
+      <PatientDashboard
+        draft={draft}
+        submitted={submitted}
+        demo={demo}
+        appointment={appointment}
+        loading={patientDataLoading}
+        error={patientDataError}
+      />
+    );
   else if (path === "/consultation")
     page = <PreConsultation draft={draft} setDraft={updateDraft} />;
   else if (
@@ -161,6 +223,7 @@ export default function App() {
         demo={demo}
         consultationId={consultationId}
         existingAppointment={appointment}
+        onAppointmentBooked={setAppointment}
       />
     );
   else if (path === "/appointment")
@@ -182,14 +245,14 @@ export default function App() {
           while exploring this prototype.
         </p>
         <p>
-          Please use fictional information while exploring. This prototype does
-          not book appointments or provide medical advice.
+          Signed-in users can persist a prototype appointment booking, but the
+          app is not connected to a hospital scheduling system and provides no
+          medical advice.
         </p>
         <p>
-          If Google sign-in is configured, Google’s sign-in service loads on the
-          login page. Its credential is sent to the configured authentication
-          API for verification. Production privacy, retention and consent
-          controls will be defined before real patient information is collected.
+          Google sign-in is not enabled. Production privacy, retention, consent,
+          auditing and deletion controls must be defined before real patient
+          information is collected.
         </p>
         <Button href="#/">Back to home</Button>
       </main>

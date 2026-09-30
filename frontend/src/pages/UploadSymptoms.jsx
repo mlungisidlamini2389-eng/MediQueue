@@ -24,7 +24,7 @@ function Photo({ file, onRemove }) {
     </div>
   );
 }
-export default function UploadSymptoms({ draft, setDraft }) {
+export default function UploadSymptoms({ draft, setDraft, demo }) {
   const [error, setError] = useState("");
   function addPhotos(event) {
     const files = Array.from(event.target.files);
@@ -93,8 +93,9 @@ export default function UploadSymptoms({ draft, setDraft }) {
           </label>
         </div>
         <p className="muted small">
-          Demo attachments stay in this tab and are not uploaded. Please use
-          sample images.
+          {demo
+            ? "Demo attachments stay in this tab and are not uploaded. Please use sample images."
+            : "Signed-in attachments are stored by this local prototype for administrator review. Please use sample images."}
         </p>
         {error && (
           <p className="error" role="alert">

@@ -20,6 +20,13 @@ def get_connection():
 	return connection
 
 
+def _add_column(connection, table: str, definition: str):
+	column = definition.split()[0]
+	columns = {row["name"] for row in connection.execute(f"PRAGMA table_info({table})")}
+	if column not in columns:
+		connection.execute(f"ALTER TABLE {table} ADD COLUMN {definition}")
+
+
 def initialize_database():
 	with get_connection() as connection:
 		connection.executescript(
@@ -41,6 +48,7 @@ def initialize_database():
 			CREATE TABLE IF NOT EXISTS consultations (
 				id TEXT PRIMARY KEY,
 				patient_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+				submission_id TEXT,
 				symptoms TEXT NOT NULL,
 				duration TEXT NOT NULL,
 				impact TEXT NOT NULL,
@@ -56,6 +64,7 @@ def initialize_database():
 				filename TEXT NOT NULL,
 				content_type TEXT NOT NULL,
 				path TEXT NOT NULL,
+				content_sha256 TEXT,
 				created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 			);
 			CREATE INDEX IF NOT EXISTS consultations_patient_id_idx ON consultations(patient_id);
@@ -68,6 +77,7 @@ def initialize_database():
 				starts_at TEXT NOT NULL,
 				department TEXT NOT NULL,
 				location TEXT NOT NULL,
+				resource_key TEXT NOT NULL,
 				status TEXT NOT NULL DEFAULT 'confirmed',
 				created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 			);
@@ -78,6 +88,7 @@ def initialize_database():
 				starts_at TEXT NOT NULL,
 				department TEXT NOT NULL,
 				location TEXT NOT NULL,
+				resource_key TEXT NOT NULL,
 				status TEXT NOT NULL DEFAULT 'offered',
 				created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 			);

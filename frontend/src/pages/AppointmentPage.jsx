@@ -15,6 +15,9 @@ export default function AppointmentPage({ demo, consultationId, existingAppointm
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
+    setAppointment(existingAppointment);
+  }, [existingAppointment]);
+  useEffect(() => {
     if (demo || !consultationId || existingAppointment) return;
     getAppointmentOffers(consultationId)
       .then(setOffers)
@@ -45,7 +48,12 @@ export default function AppointmentPage({ demo, consultationId, existingAppointm
             <span className="confirmation-icon">✓</span>
             <h2 id="appointment-confirmed-title">Appointment confirmed</h2>
             <p>
-              Your visit is booked for {new Date(appointment.starts_at).toLocaleString([], { dateStyle: "full", timeStyle: "short" })}.
+              Your visit is booked for{" "}
+              {new Date(appointment.starts_at).toLocaleString([], {
+                dateStyle: "full",
+                timeStyle: "short",
+              })}
+              .
             </p>
             <button
               className="button button-primary"
@@ -67,7 +75,7 @@ export default function AppointmentPage({ demo, consultationId, existingAppointm
             : "Your care team will send you appointment options to choose from."}
       </p>
       {demo ? (
-        <AppointmentCard />
+        <AppointmentCard demo />
       ) : appointment ? (
         <AppointmentCard appointment={appointment} />
       ) : (
@@ -89,12 +97,25 @@ export default function AppointmentPage({ demo, consultationId, existingAppointm
               disabled={busy || !mobile.trim()}
               onClick={() => chooseOffer(offer.id)}
             >
-              <strong>{new Date(offer.starts_at).toLocaleString([], { dateStyle: "full", timeStyle: "short" })}</strong>
-              <span>{offer.department} · {offer.location}</span>
+              <strong>
+                {new Date(offer.starts_at).toLocaleString([], {
+                  dateStyle: "full",
+                  timeStyle: "short",
+                })}
+              </strong>
+              <span>
+                {offer.department} · {offer.location}
+              </span>
             </button>
           ))}
-          {!offers.length && !error && <p className="muted">No appointment options have been sent yet.</p>}
-          {error && <p className="error" role="alert">{error}</p>}
+          {!offers.length && !error && (
+            <p className="muted">No appointment options have been sent yet.</p>
+          )}
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
         </section>
       )}
       {!demo && appointment && Object.keys(appointment.notifications || {}).length > 0 && (

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -14,8 +14,6 @@ export default function LoginPage({ role = "patient" }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [ready, setReady] = useState(false);
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   async function handleSubmit(event) {
     event.preventDefault();
     if (role !== "admin" && (!email.trim() || !email.includes("@"))) {
@@ -122,10 +120,22 @@ export default function LoginPage({ role = "patient" }) {
           <ArrowLeft size={16} /> Back to home
         </a>
         <h2>Welcome to MediQueue</h2>
-        <p className="muted">{role === "admin" ? "Log in as Admin" : "Log in as Patient"}</p>
+        <p className="muted">
+          {role === "admin" ? "Log in as Admin" : "Log in as Patient"}
+        </p>
         <div className="login-role-options" aria-label="Login options">
-          <a href="#/login/patient" aria-current={role === "patient" ? "page" : undefined}>Patient</a>
-          <a href="#/login/admin" aria-current={role === "admin" ? "page" : undefined}>Admin</a>
+          <a
+            href="#/login/patient"
+            aria-current={role === "patient" ? "page" : undefined}
+          >
+            Patient
+          </a>
+          <a
+            href="#/login/admin"
+            aria-current={role === "admin" ? "page" : undefined}
+          >
+            Admin
+          </a>
         </div>
         {role === "admin" && <p className="login-small">Enter your admin password to continue.</p>}
         <form className="login-fields" onSubmit={handleSubmit}>
@@ -154,7 +164,11 @@ export default function LoginPage({ role = "patient" }) {
               required
             />
           </label>
-          <button className="button button-primary login-submit" type="submit" disabled={busy}>
+          <button
+            className="button button-primary login-submit"
+            type="submit"
+            disabled={busy}
+          >
             Sign in
           </button>
         </form>
@@ -186,24 +200,11 @@ export default function LoginPage({ role = "patient" }) {
             <p className="error" role="alert">
               {error}
             </p>
-          )}
-        </div>
-        {role === "patient" && <>
-        <div className="divider">
-          <span>Just taking a look?</span>
-        </div>
-        <Button variant="outline" onClick={startDemo}>
-          Explore the patient demo <ArrowRight size={17} />
-        </Button>
-        <p className="login-small">
-          No account needed. Use sample information only.
-          <br />
-          <a href="#/privacy">Read about this prototype’s privacy</a>
-        </p>
-        <p className="login-small register-linkline">
-          New to MediQueue? <a href="#/register">Create an account</a>
-        </p>
-        </>}
+            <p className="login-small register-linkline">
+              New to MediQueue? <a href="#/register">Create an account</a>
+            </p>
+          </>
+        )}
       </section>
     </main>
   );

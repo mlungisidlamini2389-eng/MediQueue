@@ -1,19 +1,22 @@
 # MediQueue
 
-A React + Vite frontend for a smart hospital queue and pre-consultation service.
+A React/Vite and FastAPI prototype for patient pre-consultation and administrator-offered appointment booking.
 
-## Run the frontend
+## Run locally
 
-Install Node.js 22 LTS or later, then run:
+Install Node.js 22 LTS or later and Python 3.11 or later. Run the backend and frontend in separate PowerShell terminals:
 
-```sh
-cd frontend
-npm install
-npm run dev
+```powershell
+cd backend
+python -m venv .venv
+.venv\Scripts\python -m pip install -r requirements-dev.txt
+.venv\Scripts\python -m uvicorn main:app --reload
 ```
-$env:Path = "$PWD\node-v22.23.3-win-x64;$env:Path"
+
+```powershell
 cd frontend
-npm.cmd run dev
+npm ci
+npm run dev
 ```
 
 ## MVP features
@@ -28,11 +31,9 @@ npm.cmd run dev
 
 Use fictional information. Demo answers and image files stay in React memory and are never uploaded. Signed-in consultation data, summaries, and uploaded attachments are stored by the local backend for review. Ollama can suggest possible conditions for clinical discussion, but must not diagnose or recommend treatment; a healthcare professional must review the summary against the original answers.
 
-## Prototype accounts
+Use fictional information. Demo answers and images stay in React memory. Signed-in consultation data, verified attachments, offers, and confirmed appointments are stored by the local backend. No AI inference, medical triage, live queueing, clinician workflow, or external hospital scheduling is implemented.
 
-Patient accounts are stored in the local SQLite database. Patients can submit
-consultations, and an administrator can review them and offer appointment dates
-for the patient to choose.
+## Create the first admin
 
 ### Admin login
 
@@ -40,26 +41,25 @@ Choose **Log in as Admin** on the home page and enter the local prototype passwo
 
 The backend hashes the password and verifies it before issuing a session cookie. The local default account is `admin@mediqueue.local`. Set `MEDIQUEUE_ADMIN_EMAIL`, `MEDIQUEUE_ADMIN_PASSWORD`, and optionally `MEDIQUEUE_ADMIN_NAME` to override the defaults. An existing password override takes precedence. Use a private password before sharing or deploying the app.
 
-## Google sign-in
+## Configuration and persistence
 
-Create `frontend/.env.local` with:
+The frontend defaults to `http://127.0.0.1:8000`. Override it in `frontend/.env.local` when needed:
 
 ```dotenv
 VITE_API_URL=http://127.0.0.1:8000
-VITE_GOOGLE_CLIENT_ID=your-google-web-client-id
 ```
 
-Configure the Google OAuth web client with `http://localhost:5173` as an authorised JavaScript origin, and restart Vite. Without a client ID the Google button is disabled; local prototype sign-in and registration remain available.
+Google sign-in is hidden because the backend does not implement verified Google credentials. Local registration and password sign-in remain available.
 
-The frontend uses the official [Google Identity Services button](https://developers.google.com/identity/gsi/web/reference/js-reference). It sends the returned credential to `POST /auth/google`. This endpoint is not implemented yet. The future backend must verify the token's signature, issuer, audience and expiry, upsert the user in PostgreSQL and return `{ "user": { "id": "...", "name": "...", "email": "..." } }` with a secure HttpOnly session cookie. Never trust client-decoded Google claims for authentication or authorisation.
+FastAPI uses SQLite. The schema and safe additive updates live in `backend/app/database.py`; the project does not use separate SQL schema or seed files. Uploaded files use generated names under `uploads/`; metadata lives in SQLite.
 
-Sessions restore through `/auth/me`, and “Leave session” revokes the backend session. Production still needs secure-cookie deployment, CSRF controls, and a managed database.
+Appointment inputs require an explicit timezone. The backend normalizes and stores UTC ISO-8601 values ending in `Z`; browsers render them in the viewer's local timezone. Scheduling conflicts use department plus location, the smallest scheduling resource represented by the current model.
 
-## Backend and database
+This remains a local prototype. Production requires managed persistence and file storage, HTTPS secure cookies, CSRF protection, verified staff identity, audit trails, retention/deletion controls, isolated image processing, and integration with a real scheduling system.
 
-FastAPI with SQLite is currently used for local development. The browser accesses data through FastAPI; it never connects directly to the database. Admin credentials are configured only in the backend environment. Variables prefixed with `VITE_` are public browser configuration.
+## Validation
 
-Next work: production database migrations, verified Google authentication, clinician roles and review workflow, and integration with a real appointment availability source.
+Run the backend suite:
 
 ## Appointment SMS and email
 
@@ -71,11 +71,11 @@ Install Ollama, run `ollama pull llama3.2:3b`, and keep Ollama running locally. 
 
 ## Frontend checks
 
-```sh
+```powershell
 cd frontend
 npm run build
 npx playwright install chromium
 npm test
 ```
 
-If Microsoft Edge is already installed, set `PLAYWRIGHT_CHANNEL=msedge` instead of downloading Chromium. Tests cover the demo journey, required symptom selection, attachment removal, review confirmation, mobile navigation and layout overflow. Run tests without a configured Google client ID to exercise the initial setup state.
+The Playwright configuration starts both FastAPI and the built frontend. It covers the authenticated patient/admin booking flow, persistent confirmation, access control, the demo journey, form validation, mobile navigation, and layout overflow. If Microsoft Edge is already installed, set `PLAYWRIGHT_CHANNEL=msedge` instead of downloading Chromium.
