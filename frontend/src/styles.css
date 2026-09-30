@@ -91,6 +91,9 @@ select,
 textarea {
   font: inherit;
 }
+small {
+  font-size: max(16px, 1em);
+}
 button,
 a,
 input,
@@ -166,7 +169,7 @@ input[type="checkbox"] {
   color: var(--muted);
 }
 .small {
-  font-size: 13px;
+  font-size: max(16px, 13px);
 }
 .split {
   display: flex;
@@ -178,7 +181,7 @@ input[type="checkbox"] {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  font-size: 10px;
+  font-size: max(16px, 10px);
   letter-spacing: 1.75px;
   font-weight: 700;
   color: #3461a5;
@@ -191,7 +194,7 @@ input[type="checkbox"] {
   border: 0;
   background: none;
   padding: 0;
-  font-size: 10px;
+  font-size: max(16px, 10px);
   letter-spacing: 1.7px;
 }
 .live-dot {
@@ -208,7 +211,7 @@ input[type="checkbox"] {
   gap: 12px;
   border-radius: 8px;
   padding: 14px 21px;
-  font-size: 13px;
+  font-size: max(16px, 13px);
   font-weight: 600;
   border: 1px solid transparent;
   transition:
@@ -275,7 +278,7 @@ input[type="checkbox"] {
   display: flex;
   align-items: center;
   gap: 26px;
-  font-size: 11px;
+  font-size: max(16px, 11px);
   font-weight: 500;
   height: 100%;
 }
@@ -304,12 +307,12 @@ input[type="checkbox"] {
   display: flex;
   align-items: center;
   gap: 23px;
-  font-size: 12px;
+  font-size: max(16px, 12px);
   font-weight: 600;
 }
 .nav-actions .button {
   padding: 11px 16px;
-  font-size: 12px;
+  font-size: max(16px, 12px);
 }
 .menu-toggle {
   display: none;
@@ -346,7 +349,7 @@ input[type="checkbox"] {
   color: var(--blue);
 }
 .hero-copy > p {
-  font-size: 15px;
+  font-size: max(16px, 15px);
   color: #68768d;
   max-width: 400px;
   line-height: 1.8;
@@ -361,7 +364,7 @@ input[type="checkbox"] {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 12px;
+  font-size: max(16px, 12px);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -382,7 +385,7 @@ input[type="checkbox"] {
   align-items: center;
   gap: 7px;
   color: #8692a4;
-  font-size: 10px;
+  font-size: max(16px, 10px);
 }
 .hero-reassurance svg {
   color: #6c89ac;
@@ -480,7 +483,7 @@ input[type="checkbox"] {
 .phone-brand {
   display: flex;
   align-items: center;
-  font-size: 10px;
+  font-size: max(16px, 10px);
   font-weight: 800;
   letter-spacing: -0.3px;
 }
@@ -488,17 +491,17 @@ input[type="checkbox"] {
   background: var(--blue);
   color: white;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: max(16px, 14px);
   margin-right: 5px;
   padding: 0 3px;
 }
 .phone-menu {
   margin-left: auto;
-  font-size: 14px;
+  font-size: max(16px, 14px);
   color: #4f607a;
 }
 .phone-greeting {
-  font-size: 12px;
+  font-size: max(16px, 12px);
   margin: 23px 0 16px;
   line-height: 1.5;
   color: #65748b;
@@ -518,11 +521,11 @@ input[type="checkbox"] {
   border: 1px solid #ecf0f7;
   border-radius: 8px;
   margin-bottom: 11px;
-  font-size: 8px;
+  font-size: max(16px, 8px);
   box-shadow: 0 3px 8px #213f5d03;
 }
 .phone-progress .split > span {
-  font-size: 7px;
+  font-size: max(16px, 7px);
   color: var(--muted);
 }
 .progress {
@@ -539,17 +542,17 @@ input[type="checkbox"] {
   border-radius: 10px;
 }
 .phone-question {
-  font-size: 9px;
+  font-size: max(16px, 9px);
   padding: 11px 9px;
   background: white;
   border: 1px solid #edf0f5;
   border-radius: 9px;
 }
 .phone-question > strong {
-  font-size: 10px;
+  font-size: max(16px, 10px);
 }
 .phone-question p {
-  font-size: 8px;
+  font-size: max(16px, 8px);
   color: var(--muted);
   margin: 4px 0 7px;
 }
@@ -558,7 +561,7 @@ input[type="checkbox"] {
   display: flex;
   gap: 7px;
   align-items: center;
-  font-size: 8px;
+  font-size: max(16px, 8px);
 }
 .phone-option > span {
   border: 1px solid #d0d9e6;
@@ -587,7 +590,7 @@ input[type="checkbox"] {
   align-items: center;
   gap: 10px;
   padding: 10px;
-  font-size: 9px;
+  font-size: max(16px, 9px);
   border-radius: 6px;
   margin-top: 10px;
 }
@@ -596,12 +599,12 @@ input[type="checkbox"] {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  font-size: 6px;
+  font-size: max(16px, 6px);
   color: #8d9ab0;
   margin-top: 8px;
 }
 .phone-title {
-  font-size: 12px;
+  font-size: max(16px, 12px);
   font-weight: 700;
   margin: 10px 0 15px;
 }
@@ -631,7 +634,7 @@ input[type="checkbox"] {
   box-shadow: 0 0 0 7px #edf9f3;
 }
 .appointment-status .muted {
-  font-size: 12px;
+  font-size: max(16px, 12px);
 }
 .detail-row {
   display: flex;
@@ -651,13 +654,13 @@ input[type="checkbox"] {
 }
 .detail-row small {
   display: block;
-  font-size: 11px;
+  font-size: max(16px, 11px);
   color: var(--muted);
   margin-bottom: 4px;
 }
 .detail-row strong {
   display: block;
-  font-size: 13px;
+  font-size: max(16px, 13px);
   font-weight: 500;
 }
 .appointment-note {
@@ -665,7 +668,7 @@ input[type="checkbox"] {
   color: #4473b8;
   border-radius: 7px;
   padding: 13px;
-  font-size: 12px;
+  font-size: max(16px, 12px);
   margin-bottom: 0;
 }
 .compact {
@@ -687,10 +690,10 @@ input[type="checkbox"] {
   box-shadow: none;
 }
 .compact .appointment-status strong {
-  font-size: 9px;
+  font-size: max(16px, 9px);
 }
 .compact .appointment-status .muted {
-  font-size: 7px;
+  font-size: max(16px, 7px);
 }
 .compact .detail-row {
   gap: 7px;
@@ -704,13 +707,13 @@ input[type="checkbox"] {
   width: 14px;
 }
 .compact .detail-row small {
-  font-size: 7px;
+  font-size: max(16px, 7px);
 }
 .compact .detail-row strong {
-  font-size: 8px;
+  font-size: max(16px, 8px);
 }
 .compact .appointment-note {
-  font-size: 7px;
+  font-size: max(16px, 7px);
   padding: 9px;
 }
 .floating-label {
@@ -725,7 +728,7 @@ input[type="checkbox"] {
   position: absolute;
   right: 6px;
   top: 47px;
-  font-size: 11px;
+  font-size: max(16px, 11px);
   line-height: 1.5;
   transform: rotate(3deg);
   z-index: 3;
@@ -762,15 +765,15 @@ input[type="checkbox"] {
 }
 .floating-confirm strong {
   display: block;
-  font-size: 11px;
+  font-size: max(16px, 11px);
   margin-bottom: 4px;
 }
 .floating-confirm small {
-  font-size: 9px;
+  font-size: max(16px, 9px);
   color: var(--muted);
 }
 .art-caption {
-  font-size: 9px;
+  font-size: max(16px, 9px);
   color: #8e9ab0;
   position: absolute;
   bottom: 0;
@@ -807,11 +810,11 @@ input[type="checkbox"] {
   margin-bottom: 15px;
 }
 .benefit h3 {
-  font-size: 13px;
+  font-size: max(16px, 13px);
   margin-bottom: 8px;
 }
 .benefit p {
-  font-size: 12px;
+  font-size: max(16px, 12px);
   color: var(--muted);
   margin: 0;
   max-width: 220px;
@@ -837,7 +840,7 @@ input[type="checkbox"] {
   letter-spacing: -1.1px;
 }
 .section-top > p {
-  font-size: 12px;
+  font-size: max(16px, 12px);
   color: var(--muted);
   margin: 0;
 }
@@ -873,15 +876,15 @@ input[type="checkbox"] {
 }
 .step-number {
   font-family: "Manrope", sans-serif;
-  font-size: 12px;
+  font-size: max(16px, 12px);
   color: #91a3bd;
 }
 .step h3 {
-  font-size: 13px;
+  font-size: max(16px, 13px);
   margin: 0 0 9px;
 }
 .step p {
-  font-size: 12px;
+  font-size: max(16px, 12px);
   color: var(--muted);
   margin: 0;
 }
@@ -909,7 +912,7 @@ input[type="checkbox"] {
   letter-spacing: -0.5px;
 }
 .human-section p {
-  font-size: 12px;
+  font-size: max(16px, 12px);
   color: var(--muted);
   max-width: 650px;
   margin: 0;
@@ -939,21 +942,21 @@ input[type="checkbox"] {
   width: 21px;
 }
 .footer p {
-  font-size: 10px;
+  font-size: max(16px, 10px);
   color: var(--muted);
   margin: 8px 0 0;
 }
 .footer-links {
   display: flex;
   gap: 23px;
-  font-size: 11px;
+  font-size: max(16px, 11px);
   color: #738099;
 }
 .footer a:hover {
   color: var(--blue);
 }
 .made-with {
-  font-size: 10px;
+  font-size: max(16px, 10px);
   color: #8b96a7;
   display: flex;
   align-items: center;
@@ -966,7 +969,7 @@ input[type="checkbox"] {
   background: #eef4ff;
   color: #476891;
   text-align: center;
-  font-size: 12px;
+  font-size: max(16px, 12px);
   line-height: 1.6;
   padding: 9px 20px;
   border-bottom: 1px solid #deebfc;
@@ -976,6 +979,128 @@ input[type="checkbox"] {
   padding-bottom: 65px;
   min-height: 70vh;
 }
+.admin-workspace {
+  max-width: 1120px;
+  min-height: 70vh;
+  padding-block: 42px 64px;
+}
+.admin-heading,
+.admin-patient-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.admin-heading h1 {
+  margin: 9px 0;
+  font-size: 32px;
+}
+.admin-heading .page-intro {
+  margin-bottom: 24px;
+}
+.refresh-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.admin-queue {
+  display: grid;
+  gap: 18px;
+}
+.admin-consultation {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+.admin-patient-heading {
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.admin-patient-heading h2 {
+  margin: 0 0 5px;
+  font-size: 20px;
+}
+.admin-patient-heading p,
+.admin-health-grid p {
+  margin: 0;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.admin-status {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #f0f5ff;
+  color: #355f9c;
+  font-size: 13px;
+}
+.admin-health-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+  padding: 20px 0;
+}
+.admin-health-grid strong,
+.admin-images > strong {
+  display: block;
+  margin-bottom: 5px;
+}
+.admin-images {
+  padding-bottom: 18px;
+}
+.admin-images > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.admin-images a {
+  color: var(--blue);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+.offer-editor {
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.offer-editor h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+.offer-editor .muted {
+  margin: 6px 0;
+}
+.offer-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.offer-options-grid input {
+  min-width: 0;
+}
+.success-message {
+  padding: 12px 14px;
+  border-radius: 7px;
+  background: #edf9f3;
+  color: #247653;
+}
+.published-offers {
+  display: grid;
+  gap: 6px;
+  padding-bottom: 16px;
+  color: var(--muted);
+}
+.published-offers strong {
+  color: var(--navy);
+}
+.admin-nav-link {
+  white-space: nowrap;
+}
 .workspace h1,
 .flow-container h1 {
   font-size: 35px;
@@ -984,7 +1109,7 @@ input[type="checkbox"] {
 }
 .page-intro {
   color: var(--muted);
-  font-size: 15px;
+  font-size: max(16px, 15px);
   margin-bottom: 30px;
 }
 .wave {
@@ -1012,7 +1137,7 @@ input[type="checkbox"] {
 .dashboard-start p {
   max-width: 430px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: max(16px, 14px);
 }
 .large-icon {
   color: var(--blue);
@@ -1026,7 +1151,7 @@ input[type="checkbox"] {
   list-style: none;
   padding: 0;
   margin: 25px 0;
-  font-size: 14px;
+  font-size: max(16px, 14px);
 }
 .check-list li {
   margin: 13px 0;
@@ -1051,10 +1176,10 @@ input[type="checkbox"] {
 .empty-appointment p {
   color: var(--muted);
   max-width: 390px;
-  font-size: 14px;
+  font-size: max(16px, 14px);
 }
 .pill {
-  font-size: 11px;
+  font-size: max(16px, 11px);
   background: #f2f6fc;
   color: #7186a6;
   border-radius: 20px;
@@ -1071,7 +1196,7 @@ input[type="checkbox"] {
   margin-top: 23px;
 }
 .info-strip p {
-  font-size: 13px;
+  font-size: max(16px, 13px);
   margin: 0;
   line-height: 1.6;
 }
@@ -1086,12 +1211,12 @@ input[type="checkbox"] {
   gap: 7px;
   align-items: center;
   color: var(--muted);
-  font-size: 12px;
+  font-size: max(16px, 12px);
   margin-bottom: 20px;
 }
 .progress-group {
   margin: 25px 0 28px;
-  font-size: 12px;
+  font-size: max(16px, 12px);
   font-weight: 500;
   color: #597497;
 }
@@ -1110,7 +1235,7 @@ input[type="checkbox"] {
   margin: 0 0 8px;
 }
 .question-card > .muted {
-  font-size: 13px;
+  font-size: max(16px, 13px);
   margin-bottom: 25px;
 }
 .symptom-grid {
@@ -1125,7 +1250,7 @@ input[type="checkbox"] {
   padding: 16px;
   border: 1px solid #dfe6f1;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: max(16px, 14px);
   cursor: pointer;
 }
 .symptom-option.checked {
@@ -1135,7 +1260,7 @@ input[type="checkbox"] {
 }
 .field-label {
   display: block;
-  font-size: 13px;
+  font-size: max(16px, 13px);
   font-weight: 500;
   margin: 24px 0 0;
 }
@@ -1150,7 +1275,7 @@ input[type="checkbox"] {
   border-radius: 8px;
   padding: 13px 14px;
   color: var(--navy);
-  font-size: 14px;
+  font-size: max(16px, 14px);
 }
 .field-label textarea {
   resize: vertical;
@@ -1173,7 +1298,7 @@ input[type="checkbox"] {
   margin-top: 23px;
 }
 .flow-footnote {
-  font-size: 11px;
+  font-size: max(16px, 11px);
   color: var(--muted);
   margin-top: 24px;
   text-align: center;
@@ -1183,13 +1308,13 @@ input[type="checkbox"] {
   background: #fff1f2;
   padding: 12px;
   border-radius: 7px;
-  font-size: 13px;
+  font-size: max(16px, 13px);
 }
 .character-count {
   display: block;
   text-align: right;
   color: var(--muted);
-  font-size: 11px;
+  font-size: max(16px, 11px);
   margin: 7px 0 20px;
 }
 .upload-zone {
@@ -1206,16 +1331,25 @@ input[type="checkbox"] {
   color: #5e7fae;
   cursor: pointer;
 }
+.upload-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.upload-options .upload-zone {
+  min-width: 0;
+  padding: 20px 12px;
+}
 .upload-zone strong {
-  font-size: 14px;
+  font-size: max(16px, 14px);
   color: var(--blue);
 }
 .upload-zone span {
-  font-size: 11px;
+  font-size: max(16px, 11px);
 }
 .upload-zone input {
   max-width: 100%;
-  font-size: 12px;
+  font-size: max(16px, 12px);
   margin-top: 6px;
 }
 .photo-grid {
@@ -1238,7 +1372,7 @@ input[type="checkbox"] {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 10px;
+  font-size: max(16px, 10px);
   color: var(--muted);
 }
 .photo button {
@@ -1263,7 +1397,7 @@ input[type="checkbox"] {
   display: grid;
   grid-template-columns: 160px 1fr;
   gap: 20px;
-  font-size: 13px;
+  font-size: max(16px, 13px);
   line-height: 1.7;
 }
 .review-list dt {
@@ -1275,7 +1409,7 @@ input[type="checkbox"] {
   white-space: pre-wrap;
 }
 .panel .split > a {
-  font-size: 12px;
+  font-size: max(16px, 12px);
   color: var(--blue);
 }
 .panel .split h2 {
@@ -1285,7 +1419,7 @@ input[type="checkbox"] {
   display: flex;
   gap: 11px;
   align-items: flex-start;
-  font-size: 12px;
+  font-size: max(16px, 12px);
   line-height: 1.7;
   margin-top: 25px;
 }
@@ -1298,6 +1432,76 @@ input[type="checkbox"] {
   max-width: 460px;
   margin: 25px auto;
 }
+.appointment-picker {
+  max-width: 460px;
+  margin: 25px auto;
+  text-align: left;
+}
+.confirmation-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #14233e66;
+}
+.confirmation-dialog {
+  width: min(100%, 420px);
+  padding: 32px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 24px 70px #14233e40;
+  text-align: center;
+}
+.confirmation-icon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: #37b984;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+}
+.confirmation-dialog h2 {
+  margin: 0 0 10px;
+  font-size: 24px;
+}
+.confirmation-dialog p {
+  margin: 0 0 22px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.confirmation-dialog .button {
+  width: 100%;
+}
+.appointment-picker h2 {
+  margin-top: 0;
+}
+.slot-button {
+  display: grid;
+  width: 100%;
+  gap: 5px;
+  margin-top: 12px;
+  padding: 15px;
+  border: 1px solid #dce4ef;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--navy);
+  text-align: left;
+}
+.slot-button:hover,
+.slot-button:focus-visible {
+  border-color: #8ab2ff;
+  background: #f0f5ff;
+}
+.slot-button span {
+  color: var(--muted);
+  font-size: max(16px, 12px);
+}
 .visit-checklist {
   text-align: left;
   margin-bottom: 25px;
@@ -1308,7 +1512,7 @@ input[type="checkbox"] {
 .visit-checklist ul {
   padding-left: 20px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: max(16px, 13px);
   line-height: 2;
 }
 .login-layout {
@@ -1326,7 +1530,7 @@ input[type="checkbox"] {
   margin: 20px 0;
 }
 .login-story > p {
-  font-size: 15px;
+  font-size: max(16px, 15px);
   color: var(--muted);
   max-width: 380px;
 }
@@ -1353,7 +1557,7 @@ input[type="checkbox"] {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 12px;
+  font-size: max(16px, 12px);
   color: #6482a7;
   max-width: 380px;
   line-height: 1.7;
@@ -1373,13 +1577,23 @@ input[type="checkbox"] {
   margin: 24px 0 12px;
 }
 .login-card > .muted {
-  font-size: 13px;
+  font-size: max(16px, 13px);
 }
 .google-area {
   margin: 32px 0 16px;
   display: flex;
   align-items: center;
   flex-direction: column;
+}
+.login-fields {
+  display: grid;
+  gap: 15px;
+  margin: 28px 0 0;
+  text-align: left;
+}
+.login-submit {
+  width: 100%;
+  margin-top: 4px;
 }
 .google-placeholder {
   width: 100%;
@@ -1393,7 +1607,7 @@ input[type="checkbox"] {
   gap: 18px;
   color: #3b4657;
   font-weight: 500;
-  font-size: 14px;
+  font-size: max(16px, 14px);
   opacity: 0.75 !important;
 }
 .google-g {
@@ -1402,16 +1616,19 @@ input[type="checkbox"] {
   font-weight: 700;
 }
 .setup-note {
-  font-size: 12px;
+  font-size: max(16px, 12px);
   color: var(--muted);
   margin: 14px 0 0;
   max-width: 300px;
 }
 .login-small {
-  font-size: 11px;
+  font-size: max(16px, 11px);
   line-height: 1.8;
   color: var(--muted);
   margin: 16px 0;
+}
+.register-linkline {
+  font-size: max(16px, 15px);
 }
 .login-small a {
   color: #4f78b5;
@@ -1420,6 +1637,65 @@ input[type="checkbox"] {
 }
 .login-card > .button {
   width: 100%;
+}
+.register-card {
+  text-align: left;
+}
+.register-card h2 {
+  margin-top: 24px;
+}
+.register-fields {
+  display: grid;
+  gap: 15px;
+  margin: 25px 0 18px;
+}
+.register-field {
+  display: grid;
+  gap: 7px;
+  color: var(--navy);
+  font-size: max(16px, 13px);
+  font-weight: 600;
+}
+.register-field input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #dce4ef;
+  border-radius: 7px;
+  background: #fff;
+  padding: 12px 13px;
+  color: var(--navy);
+  font-size: max(16px, 14px);
+  font-weight: 400;
+}
+.register-field input::placeholder {
+  color: #7f8b9c;
+}
+.register-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: var(--muted);
+  font-size: max(16px, 12px);
+  line-height: 1.6;
+}
+.register-consent input {
+  margin: 2px 0 0;
+}
+.register-consent a,
+.register-signin a {
+  color: #4f78b5;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.register-submit {
+  width: 100%;
+  margin-top: 20px;
+}
+.register-signin {
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: max(16px, 13px);
+  text-align: center;
 }
 .divider {
   border-top: 1px solid var(--line);
@@ -1431,12 +1707,12 @@ input[type="checkbox"] {
   top: -10px;
   background: #fff;
   padding: 0 13px;
-  font-size: 11px;
+  font-size: max(16px, 11px);
   color: var(--muted);
 }
 .privacy p {
   color: var(--muted);
-  font-size: 14px;
+  font-size: max(16px, 14px);
 }
 .skip-link {
   position: fixed;
@@ -1477,7 +1753,7 @@ input[type="checkbox"] {
 @media (max-width: 1100px) {
   .nav-links {
     gap: 17px;
-    font-size: 10px;
+    font-size: max(16px, 10px);
   }
   .nav {
     gap: 15px;
@@ -1501,7 +1777,7 @@ input[type="checkbox"] {
   }
   .hero-buttons .button {
     padding: 13px;
-    font-size: 12px;
+    font-size: max(16px, 12px);
   }
   .how-section {
     margin-inline: 25px;
@@ -1544,7 +1820,7 @@ input[type="checkbox"] {
     flex-direction: column;
     align-items: flex-start;
     gap: 20px;
-    font-size: 14px;
+    font-size: max(16px, 14px);
   }
   .nav-links a.active:after {
     display: none;
@@ -1566,10 +1842,10 @@ input[type="checkbox"] {
     letter-spacing: -2px;
   }
   .hero-copy > p {
-    font-size: 13px;
+    font-size: max(16px, 13px);
   }
   .hero-copy .eyebrow {
-    font-size: 8px;
+    font-size: max(16px, 8px);
     letter-spacing: 1px;
   }
   .hero-art {
@@ -1584,7 +1860,7 @@ input[type="checkbox"] {
     gap: 15px;
   }
   .hero-reassurance {
-    font-size: 9px;
+    font-size: max(16px, 9px);
   }
   .benefits {
     grid-template-columns: repeat(2, 1fr);
@@ -1607,10 +1883,10 @@ input[type="checkbox"] {
     gap: 20px;
   }
   .step h3 {
-    font-size: 12px;
+    font-size: max(16px, 12px);
   }
   .step p {
-    font-size: 11px;
+    font-size: max(16px, 11px);
   }
   .section-top h2 {
     font-size: 23px;
@@ -1670,12 +1946,15 @@ input[type="checkbox"] {
   .nav-actions .sign-in {
     display: none;
   }
+  .nav-actions > a:not(.button) {
+    display: none;
+  }
   .nav-actions .button {
     padding: 9px 12px;
-    font-size: 11px;
+    font-size: max(16px, 11px);
   }
   .nav-actions > a:not(.button) {
-    font-size: 10px;
+    font-size: max(16px, 10px);
   }
   .nav-links {
     top: 70px;
@@ -1697,13 +1976,13 @@ input[type="checkbox"] {
     margin-bottom: 20px;
   }
   .hero-copy > p {
-    font-size: 14px;
+    font-size: max(16px, 14px);
     max-width: 350px;
     line-height: 1.75;
     margin-bottom: 24px;
   }
   .hero-copy .eyebrow {
-    font-size: 8px;
+    font-size: max(16px, 8px);
     letter-spacing: 1.5px;
   }
   .hero-buttons {
@@ -1712,12 +1991,12 @@ input[type="checkbox"] {
     gap: 16px;
   }
   .hero-buttons .button {
-    font-size: 11px;
+    font-size: max(16px, 11px);
     gap: 7px;
     padding: 13px 12px;
   }
   .watch-link {
-    font-size: 10px;
+    font-size: max(16px, 10px);
     gap: 7px;
   }
   .watch-link > span {
@@ -1726,7 +2005,7 @@ input[type="checkbox"] {
   }
   .hero-reassurance {
     margin-top: 20px;
-    font-size: 10px;
+    font-size: max(16px, 10px);
   }
   .hero-art {
     height: 445px;
@@ -1770,11 +2049,11 @@ input[type="checkbox"] {
     border: 0;
   }
   .benefit h3 {
-    font-size: 12px;
+    font-size: max(16px, 12px);
     line-height: 1.5;
   }
   .benefit p {
-    font-size: 11px;
+    font-size: max(16px, 11px);
   }
   .benefit-icon {
     width: 37px;
@@ -1800,13 +2079,13 @@ input[type="checkbox"] {
   }
   .section-top > p {
     margin-top: 10px;
-    font-size: 12px;
+    font-size: max(16px, 12px);
   }
   .section-top > p br {
     display: none;
   }
   .section-top .eyebrow {
-    font-size: 8px;
+    font-size: max(16px, 8px);
   }
   .steps {
     grid-template-columns: 1fr 1fr;
@@ -1825,11 +2104,11 @@ input[type="checkbox"] {
     width: 22px;
   }
   .step h3 {
-    font-size: 12px;
+    font-size: max(16px, 12px);
     line-height: 1.5;
   }
   .step p {
-    font-size: 11px;
+    font-size: max(16px, 11px);
   }
   .step:nth-child(2) .step-top:after {
     display: none;
@@ -1852,15 +2131,15 @@ input[type="checkbox"] {
     letter-spacing: -0.5px;
   }
   .human-section .eyebrow {
-    font-size: 8px;
+    font-size: max(16px, 8px);
     line-height: 1.7;
   }
   .human-section p {
-    font-size: 11px;
+    font-size: max(16px, 11px);
   }
   .human-section > .button {
     margin-left: 57px;
-    font-size: 11px;
+    font-size: max(16px, 11px);
     padding: 11px 14px;
   }
   .footer {
@@ -1868,13 +2147,13 @@ input[type="checkbox"] {
     padding-block: 25px;
   }
   .footer-links {
-    font-size: 10px;
+    font-size: max(16px, 10px);
     flex-wrap: wrap;
     gap: 19px;
   }
   .made-with {
     width: 100%;
-    font-size: 9px;
+    font-size: max(16px, 9px);
   }
   .workspace {
     padding-top: 32px;
@@ -1887,7 +2166,7 @@ input[type="checkbox"] {
     line-height: 1.25;
   }
   .page-intro {
-    font-size: 13px;
+    font-size: max(16px, 13px);
   }
   .dashboard-grid {
     grid-template-columns: 1fr;
@@ -1910,7 +2189,7 @@ input[type="checkbox"] {
     align-items: flex-start;
   }
   .info-strip p {
-    font-size: 12px;
+    font-size: max(16px, 12px);
   }
   .flow-container {
     margin-top: 28px;
@@ -1921,7 +2200,7 @@ input[type="checkbox"] {
     gap: 9px;
   }
   .symptom-option {
-    font-size: 12px;
+    font-size: max(16px, 12px);
     padding: 12px;
     gap: 7px;
   }
@@ -1935,7 +2214,7 @@ input[type="checkbox"] {
     gap: 4px;
   }
   .flow-actions .button {
-    font-size: 12px;
+    font-size: max(16px, 12px);
     padding: 12px 15px;
   }
   .login-layout {
@@ -1951,16 +2230,16 @@ input[type="checkbox"] {
     margin-top: 13px;
   }
   .login-story > p {
-    font-size: 13px;
+    font-size: max(16px, 13px);
   }
   .login-story .eyebrow {
-    font-size: 8px;
+    font-size: max(16px, 8px);
   }
   .login-illustration {
     display: none;
   }
   .inline-note {
-    font-size: 11px;
+    font-size: max(16px, 11px);
   }
   .login-card {
     padding: 25px 20px;
@@ -1968,8 +2247,32 @@ input[type="checkbox"] {
   .login-card h2 {
     font-size: 23px;
   }
+  .admin-workspace {
+    padding-block: 28px 42px;
+  }
+  .admin-heading,
+  .admin-patient-heading {
+    align-items: flex-start;
+  }
+  .admin-heading h1 {
+    font-size: 27px;
+  }
+  .admin-heading {
+    flex-direction: column;
+    gap: 0;
+  }
+  .admin-patient-heading {
+    flex-direction: column;
+  }
+  .admin-health-grid,
+  .offer-options-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-consultation {
+    padding: 18px;
+  }
   .demo-banner {
-    font-size: 10px;
+    font-size: max(16px, 10px);
   }
   .appointment-page .appointment-card {
     padding: 24px;
@@ -1983,6 +2286,9 @@ input[type="checkbox"] {
   .upload-zone {
     padding: 20px 12px;
   }
+  .upload-options {
+    grid-template-columns: 1fr;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -1992,3 +2298,36 @@ input[type="checkbox"] {
     transition: none !important;
   }
 }
+.login-layout :is(
+  .eyebrow,
+  .login-story > p,
+  .inline-note,
+  .back-link,
+  .login-card > .muted,
+  .google-placeholder,
+  .setup-note,
+  .login-small,
+  .register-field,
+  .register-field input,
+  .register-consent,
+  .register-signin,
+  .error,
+  .button
+) {
+  font-size: 16px;
+}
+.site-header .nav-links,
+.site-header .nav-actions,
+.site-header .nav-actions > a:not(.button),
+.site-header .nav-actions .button,
+.footer p,
+.footer-links,
+.made-with {
+  font-size: 16px;
+}
+
+.home-sign-in { margin-top: 28px; }
+.home-sign-in h2 { font-size: 16px; margin-bottom: 12px; }
+.login-role-options { display: flex; flex-wrap: wrap; gap: 12px; }
+.login-card .login-role-options { justify-content: center; margin-top: 16px; }
+.login-role-options a[aria-current="page"] { font-weight: 700; text-decoration: underline; text-underline-offset: 5px; }

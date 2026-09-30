@@ -39,6 +39,7 @@ export default function Navbar({ path }) {
           </a>
           <a href="#/how-it-works">How it works</a>
           <a href="#/features">Why MediQueue</a>
+          {user?.role === "admin" && <a href="#/admin">Admin review</a>}
           <a href="#/healthcare">
             For healthcare teams <ArrowUpRight size={13} />
           </a>
@@ -53,9 +54,6 @@ export default function Navbar({ path }) {
             </>
           ) : (
             <>
-              <a className="sign-in" href="#/login">
-                Sign in
-              </a>
               <Button href="#/login">
                 Get started <ArrowUpRight size={16} />
               </Button>
