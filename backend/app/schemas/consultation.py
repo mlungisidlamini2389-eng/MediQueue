@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 
 
 class ConsultationCreate(BaseModel):
+	submission_id: str = Field(min_length=8, max_length=120)
 	symptoms: list[str] = Field(min_length=1, max_length=8)
 	duration: str = Field(min_length=1, max_length=80)
 	impact: str = Field(min_length=1, max_length=120)

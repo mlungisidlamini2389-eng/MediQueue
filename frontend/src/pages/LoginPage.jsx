@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -8,14 +8,11 @@ import {
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
 export default function LoginPage({ role = "patient" }) {
-  const { signInWithPassword, googleSignIn, startDemo } = useAuth();
-  const target = useRef(null);
+  const { signInWithPassword, startDemo } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [ready, setReady] = useState(false);
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   async function handleSubmit(event) {
     event.preventDefault();
     if (!email.trim() || !email.includes("@")) {
@@ -37,63 +34,6 @@ export default function LoginPage({ role = "patient" }) {
       setBusy(false);
     }
   }
-  useEffect(() => {
-    if (!clientId) return;
-    let active = true;
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    const timer = setTimeout(() => {
-      if (active)
-        setError(
-          "Google sign-in is taking too long to load. Please refresh and try again.",
-        );
-    }, 15000);
-    script.onload = () => {
-      clearTimeout(timer);
-      if (!active) return;
-      window.google.accounts.id.initialize({
-        client_id: clientId,
-        callback: async ({ credential }) => {
-          if (!active) return;
-          setBusy(true);
-          setError("");
-          try {
-            await googleSignIn(credential);
-            if (active) window.location.hash = role === "admin" ? "/admin" : "/dashboard";
-          } catch {
-            if (active)
-              setError(
-                "Sign-in could not be completed. Please check that the authentication service is available and try again.",
-              );
-          } finally {
-            if (active) setBusy(false);
-          }
-        },
-      });
-      window.google.accounts.id.renderButton(target.current, {
-        theme: "outline",
-        size: "large",
-        width: 280,
-        text: "continue_with",
-        shape: "pill",
-      });
-      setReady(true);
-    };
-    script.onerror = () => {
-      clearTimeout(timer);
-      if (active)
-        setError(
-          "Google sign-in could not load. Check your connection and refresh.",
-        );
-    };
-    document.head.appendChild(script);
-    return () => {
-      active = false;
-      clearTimeout(timer);
-      script.remove();
-    };
-  }, [clientId, role]);
   return (
     <main className="login-layout container">
       <section className="login-story">
@@ -121,12 +61,28 @@ export default function LoginPage({ role = "patient" }) {
           <ArrowLeft size={16} /> Back to home
         </a>
         <h2>Welcome to MediQueue</h2>
-        <p className="muted">{role === "admin" ? "Log in as Admin" : "Log in as Patient"}</p>
+        <p className="muted">
+          {role === "admin" ? "Log in as Admin" : "Log in as Patient"}
+        </p>
         <div className="login-role-options" aria-label="Login options">
-          <a href="#/login/patient" aria-current={role === "patient" ? "page" : undefined}>Patient</a>
-          <a href="#/login/admin" aria-current={role === "admin" ? "page" : undefined}>Admin</a>
+          <a
+            href="#/login/patient"
+            aria-current={role === "patient" ? "page" : undefined}
+          >
+            Patient
+          </a>
+          <a
+            href="#/login/admin"
+            aria-current={role === "admin" ? "page" : undefined}
+          >
+            Admin
+          </a>
         </div>
-        {role === "admin" && <p className="login-small">Use your authorised admin account to continue.</p>}
+        {role === "admin" && (
+          <p className="login-small">
+            Use your authorised admin account to continue.
+          </p>
+        )}
         <form className="login-fields" onSubmit={handleSubmit}>
           <label className="register-field">
             <span>Email address</span>
@@ -153,52 +109,38 @@ export default function LoginPage({ role = "patient" }) {
               required
             />
           </label>
-          <button className="button button-primary login-submit" type="submit" disabled={busy}>
+          <button
+            className="button button-primary login-submit"
+            type="submit"
+            disabled={busy}
+          >
             Sign in
           </button>
         </form>
-        <div className="divider">
-          <span>Or continue with</span>
-        </div>
-        <div className="google-area" aria-busy={busy}>
-          <div ref={target} />
-          {!clientId && (
-            <>
-              <button className="google-placeholder" disabled>
-                <span className="google-g">G</span> Continue with Google
-              </button>
-              <p className="setup-note">
-                Google sign-in will be available when the service is connected.
-                {role === "patient" && "You can explore the demo below."}
-              </p>
-            </>
-          )}
-          {clientId && !ready && !error && (
-            <p role="status">Loading Google sign-in…</p>
-          )}
-          {busy && <p role="status">Signing you in…</p>}
-          {error && (
-            <p className="error" role="alert">
-              {error}
+        {busy && <p role="status">Signing you in…</p>}
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
+        {role === "patient" && (
+          <>
+            <div className="divider">
+              <span>Just taking a look?</span>
+            </div>
+            <Button variant="outline" onClick={startDemo}>
+              Explore the patient demo <ArrowRight size={17} />
+            </Button>
+            <p className="login-small">
+              No account needed. Use sample information only.
+              <br />
+              <a href="#/privacy">Read about this prototype’s privacy</a>
             </p>
-          )}
-        </div>
-        {role === "patient" && <>
-        <div className="divider">
-          <span>Just taking a look?</span>
-        </div>
-        <Button variant="outline" onClick={startDemo}>
-          Explore the patient demo <ArrowRight size={17} />
-        </Button>
-        <p className="login-small">
-          No account needed. Use sample information only.
-          <br />
-          <a href="#/privacy">Read about this prototype’s privacy</a>
-        </p>
-        <p className="login-small register-linkline">
-          New to MediQueue? <a href="#/register">Create an account</a>
-        </p>
-        </>}
+            <p className="login-small register-linkline">
+              New to MediQueue? <a href="#/register">Create an account</a>
+            </p>
+          </>
+        )}
       </section>
     </main>
   );

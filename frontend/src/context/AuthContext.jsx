@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 import {
   registerUser as registerUserRequest,
   getCurrentUser,
-  signInWithGoogle,
   signInWithPassword as signInWithPasswordRequest,
   signOut,
 } from "../services/api";
@@ -23,10 +22,6 @@ export function AuthProvider({ children }) {
     setUser(await registerUserRequest(name, email, password));
     setDemo(false);
   }
-  async function googleSignIn(credential) {
-    setUser(await signInWithGoogle(credential));
-    setDemo(false);
-  }
   function startDemo() {
     setDemo(true);
     setUser(null);
@@ -45,7 +40,6 @@ export function AuthProvider({ children }) {
         demo,
         signInWithPassword,
         registerUser,
-        googleSignIn,
         startDemo,
         leaveSession,
       }}

@@ -7,7 +7,14 @@ import {
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Button";
 import AppointmentCard from "../components/AppointmentCard";
-export default function PatientDashboard({ draft, submitted, demo }) {
+export default function PatientDashboard({
+  draft,
+  submitted,
+  demo,
+  appointment,
+  loading,
+  error,
+}) {
   const { user } = useAuth();
   return (
     <main className="container workspace">
@@ -17,6 +24,11 @@ export default function PatientDashboard({ draft, submitted, demo }) {
         <span className="wave">☀</span>
       </h1>
       <p className="page-intro">A calmer hospital visit starts here.</p>
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
       <div className="dashboard-grid">
         <section className="panel dashboard-start">
           <span className="large-icon">
@@ -32,24 +44,42 @@ export default function PatientDashboard({ draft, submitted, demo }) {
             <li>Add any other details</li>
             <li>Review your information</li>
           </ul>
-          <Button href={submitted ? (demo ? "#/review" : "#/appointment") : "#/consultation"}>
+          <Button
+            href={
+              submitted
+                ? demo
+                  ? "#/review"
+                  : "#/appointment"
+                : "#/consultation"
+            }
+          >
             {submitted
-              ? demo ? "View your pre-consultation" : "View appointment options"
+              ? demo
+                ? "View your pre-consultation"
+                : "View appointment options"
               : draft.symptoms.length
                 ? "Continue pre-consultation"
                 : "Start pre-consultation"}
             <ArrowRight size={18} />
           </Button>
         </section>
-        {submitted ? (
-          <AppointmentCard />
+        {loading ? (
+          <section className="panel empty-appointment" role="status">
+            <CalendarDays size={38} />
+            <h2>Loading your appointment</h2>
+          </section>
+        ) : appointment ? (
+          <AppointmentCard appointment={appointment} />
+        ) : demo && submitted ? (
+          <AppointmentCard demo />
         ) : (
           <section className="panel empty-appointment">
             <CalendarDays size={38} />
             <h2>Your next appointment</h2>
             <p>
-              No appointment yet. Complete the demo pre-consultation to preview
-              this part of your journey.
+              {submitted
+                ? "Your consultation is saved. Your care team has not sent or confirmed an appointment yet."
+                : "No appointment yet. Complete your pre-consultation to begin."}
             </p>
             <span className="pill">Ready when you are</span>
           </section>

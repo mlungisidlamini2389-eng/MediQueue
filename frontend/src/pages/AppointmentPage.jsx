@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import AppointmentCard from "../components/AppointmentCard";
 import Button from "../components/Button";
-import {
-  getAppointmentOffers,
-  selectAppointmentOffer,
-} from "../services/api";
-export default function AppointmentPage({ demo, consultationId, existingAppointment }) {
+import { getAppointmentOffers, selectAppointmentOffer } from "../services/api";
+export default function AppointmentPage({
+  demo,
+  consultationId,
+  existingAppointment,
+  onAppointmentBooked,
+}) {
   const [offers, setOffers] = useState([]);
   const [appointment, setAppointment] = useState(existingAppointment);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    setAppointment(existingAppointment);
+  }, [existingAppointment]);
   useEffect(() => {
     if (demo || !consultationId || existingAppointment) return;
     getAppointmentOffers(consultationId)
@@ -21,7 +26,9 @@ export default function AppointmentPage({ demo, consultationId, existingAppointm
     setBusy(true);
     setError("");
     try {
-      setAppointment(await selectAppointmentOffer(offerId));
+      const confirmed = await selectAppointmentOffer(offerId);
+      setAppointment(confirmed);
+      onAppointmentBooked?.(confirmed);
       setShowConfirmation(true);
     } catch (bookingError) {
       setError(bookingError.message);
@@ -42,7 +49,12 @@ export default function AppointmentPage({ demo, consultationId, existingAppointm
             <span className="confirmation-icon">✓</span>
             <h2 id="appointment-confirmed-title">Appointment confirmed</h2>
             <p>
-              Your visit is booked for {new Date(appointment.starts_at).toLocaleString([], { dateStyle: "full", timeStyle: "short" })}.
+              Your visit is booked for{" "}
+              {new Date(appointment.starts_at).toLocaleString([], {
+                dateStyle: "full",
+                timeStyle: "short",
+              })}
+              .
             </p>
             <button
               className="button button-primary"
@@ -64,7 +76,7 @@ export default function AppointmentPage({ demo, consultationId, existingAppointm
             : "Your care team will send you appointment options to choose from."}
       </p>
       {demo ? (
-        <AppointmentCard />
+        <AppointmentCard demo />
       ) : appointment ? (
         <AppointmentCard appointment={appointment} />
       ) : (
@@ -78,12 +90,25 @@ export default function AppointmentPage({ demo, consultationId, existingAppointm
               disabled={busy}
               onClick={() => chooseOffer(offer.id)}
             >
-              <strong>{new Date(offer.starts_at).toLocaleString([], { dateStyle: "full", timeStyle: "short" })}</strong>
-              <span>{offer.department} · {offer.location}</span>
+              <strong>
+                {new Date(offer.starts_at).toLocaleString([], {
+                  dateStyle: "full",
+                  timeStyle: "short",
+                })}
+              </strong>
+              <span>
+                {offer.department} · {offer.location}
+              </span>
             </button>
           ))}
-          {!offers.length && !error && <p className="muted">No appointment options have been sent yet.</p>}
-          {error && <p className="error" role="alert">{error}</p>}
+          {!offers.length && !error && (
+            <p className="muted">No appointment options have been sent yet.</p>
+          )}
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
         </section>
       )}
       <div className="panel visit-checklist">
